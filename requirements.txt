@@ -1,0 +1,14 @@
+# Data & charts (notebooks 01–03)
+pandas
+numpy
+matplotlib
+seaborn
+plotly
+nbformat        # needed by plotly to show maps inside notebooks
+airports-py     # full airport names
+
+# Segmentation models (notebook 03: K-Means, DBSCAN, silhouette score)
+scikit-learn
+
+# App
+streamlit

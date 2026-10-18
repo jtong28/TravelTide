@@ -116,6 +116,10 @@ WITH
       sb.user_id,
       sb.trip_id,
       sb.destination,
+      -- trip city: flight destination, or the city part of hotel_name ("Brand - city") for hotel-only trips,
+      -- which have no flight destination; spaces are cleaned first because some names contain double spaces
+      COALESCE(LOWER(TRIM(sb.destination)),
+               LOWER(TRIM(SPLIT_PART(REGEXP_REPLACE(sb.hotel_name, '\s+', ' ', 'g'), ' - ', 2)))) AS trip_city,
       sb.flight_booked,
       sb.hotel_booked,
       sb.seats,
@@ -172,14 +176,14 @@ WITH
     GROUP BY user_id
   ),
 
-  -- Step 8: Most visits to one destination per user (for Favourite-City Returners).
+  -- Step 8: Most visits to one city per user (for Favourite-City Returners), incl. hotel-only trips.
   dest_repeat AS (
     SELECT user_id, MAX(visits) AS max_visits_same_city
     FROM (
-      SELECT user_id, destination, COUNT(*) AS visits
+      SELECT user_id, trip_city, COUNT(*) AS visits
       FROM valid_trips
-      WHERE destination IS NOT NULL
-      GROUP BY user_id, destination
+      WHERE trip_city IS NOT NULL
+      GROUP BY user_id, trip_city
     ) d
     GROUP BY user_id
   ),
@@ -239,6 +243,6 @@ WITH
     LEFT JOIN dest_repeat dr  ON u.user_id = dr.user_id
   )
 
--- Choose ONE output and export it:
--- SELECT * FROM session_base;            -- 49,211 rows
-SELECT * FROM user_base ORDER BY user_id; -- 5,998 rows
+-- Choose ONE desired output and export it:
+-- SELECT * FROM session_base;            -- gives us session data csv for 49,211 rows
+SELECT * FROM user_base ORDER BY user_id; -- gives us user data csv for 5,998 rows
