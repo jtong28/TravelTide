@@ -135,11 +135,14 @@ WITH
       LEAST(sb.departure_time, sb.check_in_time) AS trip_start,
       -- discount on the trip (flight or hotel)
       (COALESCE(sb.flight_discount, FALSE) OR COALESCE(sb.hotel_discount, FALSE)) AS any_discount,
-      -- spend after discount
-        COALESCE(sb.base_fare_usd, 0) * (1 - COALESCE(sb.flight_discount_amount, 0))
-      + COALESCE(sb.hotel_per_room_usd, 0) * COALESCE(sb.rooms, 0)
-        * GREATEST(COALESCE(sb.check_out_time::date - sb.check_in_time::date, 0), 0)  -- invalid dates -> 0 hotel cost
-        * (1 - COALESCE(sb.hotel_discount_amount, 0))                          AS trip_spend_usd,
+      -- spend after discount; invalid hotel dates (0 or negative nights) -> NULL, because the hotel cost
+      -- is unknown and counting it as $0 would make these trips look far cheaper than they are
+      CASE WHEN sb.hotel_booked AND sb.check_out_time::date - sb.check_in_time::date <= 0 THEN NULL
+           ELSE COALESCE(sb.base_fare_usd, 0) * (1 - COALESCE(sb.flight_discount_amount, 0))
+              + COALESCE(sb.hotel_per_room_usd, 0) * COALESCE(sb.rooms, 0)
+                * COALESCE(sb.check_out_time::date - sb.check_in_time::date, 0)
+                * (1 - COALESCE(sb.hotel_discount_amount, 0))
+      END                                                                      AS trip_spend_usd,
       -- haversine distance home airport -> destination airport in km (flights only)
       CASE WHEN sb.flight_booked THEN
         2 * 6371 * ASIN(SQRT(
@@ -243,6 +246,6 @@ WITH
     LEFT JOIN dest_repeat dr  ON u.user_id = dr.user_id
   )
 
--- Choose ONE desired output and export it:
--- SELECT * FROM session_base;            -- gives us session data csv for 49,211 rows
-SELECT * FROM user_base ORDER BY user_id; -- gives us user data csv for 5,998 rows
+-- Choose ONE output and export it:
+-- SELECT * FROM session_base;            -- 49,211 rows
+SELECT * FROM user_base ORDER BY user_id; -- 5,998 rows

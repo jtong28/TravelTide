@@ -2,20 +2,21 @@
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
- *.pyc
 
 # Virtual environments
 venv/
 .venv/
-env/
- 
+
+# Secrets – the real database URL stays on your computer only
+.env
+!.env.example
+.streamlit/secrets.toml
+
 # Editors / OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
- 
 
+# Local scratch / old versions
 OLD/
-# Streamlit
-.streamlit/secrets.toml
