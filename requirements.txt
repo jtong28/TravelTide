@@ -12,3 +12,8 @@ scikit-learn
 
 # App
 streamlit
+
+# Optional – live database check in notebook 01 (section 1.2, installed automatically when used)
+sqlalchemy
+psycopg2-binary
+python-dotenv
