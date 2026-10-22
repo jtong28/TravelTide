@@ -9,6 +9,7 @@ All tables cover Elena's cohort: sessions from **2023-01-04** onward, users with
 | `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`sql/JT_session_and_user_base.sql`) |
 | `data/users_features.csv` | one row per user | 5,998 | notebook 02 (user table formatted + extra features) |
 | `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means cluster) |
+| `data/user_perks.csv` | one row per user | 5,998 | notebook 03 – **final deliverable**: `user_id`, `segment`, `perk`, `perk_source`, `pilot_perk` |
 
 **Missing values are structural, not errors:** flight columns are empty when no flight was booked, hotel columns when no hotel was booked, trip columns for browsing-only sessions (see notebook 01, section 3.4). They are never filled with 0.
 
@@ -94,7 +95,7 @@ Same 49,211 rows. Text formatted (Title Case, upper-case airport codes, `USA` / 
 | `lead_days` | int | Days from booking session to trip start | flat signal (median 8) – not used for segmentation |
 | `trip_city` | text | Flight destination, or hotel city for hotel-only trips | basis for repeat-city visits |
 | `distance_km` | float | Great-circle (haversine) distance home airport → destination airport | same formula as in the SQL |
-| `discount_used` | bool | Flight or hotel discount on a valid booking | empty for non-bookings |
+| `discount_used` | bool | Discount on the **booked** part of a valid booking (flight discount on a booked flight, hotel discount on a booked hotel) | empty for non-bookings; the session flags also show offers on the part *not* booked (549 valid bookings) – those don't count (notebook 01, 4.1) |
 | `trip_spend_usd` | float | Fare + hotel cost after discounts | empty for non-bookings and for the 421 bookings with invalid hotel dates (hotel cost unknown) |
 
 ---
@@ -119,7 +120,7 @@ One row per cohort user (5,998). Trip metrics use **valid bookings only** (cance
 | `avg_nights` | numeric | Average calendar nights per hotel stay | invalid hotel dates excluded |
 | `avg_distance_km` | numeric | Average flight distance (km) | |
 | `weekend_start_share` | numeric | Share of trips starting Friday or Saturday | |
-| `discount_share` | numeric | Share of trips with a flight or hotel discount | |
+| `discount_share` | numeric | Share of valid trips with a discount on the booked part | same definition as `discount_used` (SQL `any_discount`) |
 | `total_spend_usd`, `avg_spend_per_trip_usd` | numeric | Spend after discounts | empty for Dreamers (not applicable) and 26 users whose only trips had invalid hotel dates (unknown) – 582 users in total |
 | `max_visits_same_city` | int | Most valid trips to one city (`trip_city`) | ≥ 2 for 805 users → Favourite-City Returners |
 
@@ -135,7 +136,7 @@ All columns of the user-level table (section 3, text formatted as in notebook 01
 | `is_dreamer` | bool | No valid trip | 556 users |
 | `repeat_city` | bool | `max_visits_same_city` ≥ 2 | 805 users |
 | `cancel_rate` | float | cancelled trips ÷ (valid + cancelled trips) | empty for users who never booked |
-| `avg_discount_pct` | float | Average discount on discounted valid bookings, in % (larger of flight / hotel discount) | how *big* the discount is (`discount_share` = how *often*); empty if no discount was used |
+| `avg_discount_pct` | float | Average discount on discounted valid bookings, in % – only discounts on the booked part (larger one if both were used) | how *big* the discount is (`discount_share` = how *often*); empty if no discount was used |
 | `long_haul_share` | float | Share of valid flights over 3,000 km | empty for users without a valid flight; r = 0.7 with `avg_distance_km` |
 
 Empty values mean "not applicable" (e.g. no flight → no bags, no distance) and are never filled with 0.
@@ -145,6 +146,9 @@ All columns of `users_features.csv`, plus:
 
 | Column | Type | Description | Notes |
 |---|---|---|---|
-| `segment` | text | Rule-based segment, first matching rule in priority order | rules: notebook 03, section 2; users matching no rule = `All-rounders` |
-| `core_perk` | text | Perk from Elena's list matched to the segment | notebook 03, section 3 |
-| `kmeans_cluster` | int | K-Means cluster (k = 8) on 10 standardized behavioral features | bookers only – empty for Dreamers; used to check the rules, not to assign perks |
+| `segment` | text | Rule-based segment, first matching rule in priority order: Dreamers, Family Crew, Couples & Friends, Hotel Stayers, Favourite-City Returners, Deal Hunters, Long-haul Travellers, Package Travellers | rules: notebook 03, section 2; users matching no rule = `All-rounders` |
+| `core_perk` | text | Core perk of the segment (Elena's five + extra-legroom seat for Long-haul Travellers) | notebook 03, section 4; All-rounders: "assigned by perk score" |
+| `perk` | text | **Final perk** of the customer: the segment's core perk, or for All-rounders the perk with the highest perk score | notebook 03, 4.1 |
+| `perk_source` | text | `segment rule` or `perk score` | |
+| `pilot_perk` | text | New perk to A/B test for the segment (e.g. 48-h Fare Lock for Dreamers) | empty for All-rounders |
+| `kmeans_cluster` | int | K-Means cluster (k = 8) on 9 standardized behavioral features | bookers only – empty for Dreamers; used to check the rules, not to assign perks |

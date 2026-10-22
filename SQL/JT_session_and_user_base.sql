@@ -133,8 +133,10 @@ WITH
            THEN sb.check_out_time::date - sb.check_in_time::date END AS nights_calc,
       -- trip start = earlier of flight departure and hotel check-in
       LEAST(sb.departure_time, sb.check_in_time) AS trip_start,
-      -- discount on the trip (flight or hotel)
-      (COALESCE(sb.flight_discount, FALSE) OR COALESCE(sb.hotel_discount, FALSE)) AS any_discount,
+      /* discount on the trip – only for the part that was booked: the discount flags show what was
+         OFFERED in the session, also for the part not booked (e.g. a hotel discount on a flight-only trip) */
+      (   (sb.flight_booked AND COALESCE(sb.flight_discount, FALSE))
+       OR (sb.hotel_booked  AND COALESCE(sb.hotel_discount,  FALSE)))          AS any_discount,
       -- spend after discount; invalid hotel dates (0 or negative nights) -> NULL, because the hotel cost
       -- is unknown and counting it as $0 would make these trips look far cheaper than they are
       CASE WHEN sb.hotel_booked AND sb.check_out_time::date - sb.check_in_time::date <= 0 THEN NULL

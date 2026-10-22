@@ -10,7 +10,6 @@ venv/
 # Secrets – the real database URL stays on your computer only
 .env
 !.env.example
-.streamlit/secrets.toml
 
 # Editors / OS
 .vscode/
@@ -19,4 +18,4 @@ venv/
 Thumbs.db
 
 # Local scratch / old versions
-OLD/
+backup/
