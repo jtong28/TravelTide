@@ -152,3 +152,4 @@ All columns of `users_features.csv`, plus:
 | `perk_source` | text | `segment rule` or `perk score` | |
 | `pilot_perk` | text | New perk to A/B test for the segment (e.g. 48-h Fare Lock for Dreamers) | empty for All-rounders |
 | `kmeans_cluster` | int | K-Means cluster (k = 8) on 9 standardized behavioral features | bookers only – empty for Dreamers; used to check the rules, not to assign perks |
+| `dbscan_cluster` | int | DBSCAN cluster (ε = 1.5, MinPts = 18) on the same 9 features; −1 = noise (outlier) | bookers only – empty for Dreamers; used as a second check, not to assign perks |

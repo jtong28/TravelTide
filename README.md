@@ -18,11 +18,12 @@ TravelTide/
 │   ├── user_level_table.csv           # one row per user (SQL user_base)
 │   ├── sessions_clean.csv             # cleaned session table, written by notebook 01
 │   ├── users_features.csv             # user table + behavioral features, written by notebook 02
-│   └── users_segments.csv             # segment, core perk and K-Means cluster per user, written by notebook 03
+│   ├── users_segments.csv             # all features + segment, perks and K-Means cluster, written by notebook 03
+│   └── user_perks.csv                 # final deliverable: one perk per customer (user_id, segment, perk, perk_source, pilot_perk)
 ├── notebooks/
 │   ├── 01_EDA_Cleaning.ipynb          # data cleaning & exploratory data analysis
 │   ├── 02_User_Features.ipynb         # user-level features and their distributions
-│   └── 03_Segments_Models.ipynb       # rule-based segments, perk mapping, K-Means (DBSCAN to follow)
+│   └── 03_Segments_Models.ipynb       # rule-based segments, habit-or-luck test, perks, K-Means (DBSCAN to follow)
 ├── sql/
 │   └── JT_session_and_user_base.sql   # cohort filter, session- and user-level tables
 ├── images/
