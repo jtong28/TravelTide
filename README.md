@@ -14,8 +14,8 @@ Using a relational database spanning customer profiles, session logs, flight boo
 ```
 TravelTide/
 ├── data/                              # SQL exports (CSV) + files written by the notebooks
-│   ├── flights.csv                    # raw flights table export (reference only, not read by the notebooks)
-│   ├── hotels.csv                     # raw hotels table export (reference only, not read by the notebooks)
+│   ├── flights.csv                    # filtered flights table (export of SQL/filtered_tables.sql)
+│   ├── hotels.csv                     # filtered hotels table (export of SQL/filtered_tables.sql)
 │   ├── session_level_table.csv        # one row per session (SQL session_base)
 │   ├── user_level_table.csv           # one row per user (SQL user_base)
 │   ├── sessions_clean.csv             # cleaned session table, written by notebook 01
@@ -31,8 +31,7 @@ TravelTide/
 │   ├── filtered_tables.sql            # the 4 source tables, filtered to users with > 7 sessions after 4 Jan 2023
 │   └── JT_session_and_user_base.sql   # final cohort filter, session- and user-level tables
 ├── images/
-│   ├── TravelTide_ERD.png             # database schema
-│   └── TravelTide_ERD.pdf             # database schema (PDF)
+│   └── TravelTide_ERD.png             # database schema
 ├── data_dictionary.md                 # every column of every CSV, with notes
 ├── .env.example                       # template for the optional database connection
 ├── requirements.txt
