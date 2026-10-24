@@ -28,7 +28,7 @@ TravelTide/
 │   └── 03_Segments_Models.ipynb       # rule-based segments, habit-or-luck test, perks, K-Means & DBSCAN
 ├── SQL/
 │   ├── schema_exploration.sql         # first look at the database: table and column names
-│   ├── filtered_tables.sql            # early cohort-filter drafts on the raw tables
+│   ├── filtered_tables.sql            # the 4 source tables, filtered to users with > 7 sessions after 4 Jan 2023
 │   └── JT_session_and_user_base.sql   # final cohort filter, session- and user-level tables
 ├── images/
 │   ├── TravelTide_ERD.png             # database schema
