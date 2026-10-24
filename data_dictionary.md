@@ -8,8 +8,10 @@ All tables cover Elena's cohort: sessions from **2023-01-04** onward, users with
 | `data/sessions_clean.csv` | one row per browsing session | 49,211 | notebook 01 (cleaned + derived columns) |
 | `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`SQL/JT_session_and_user_base.sql`) |
 | `data/users_features.csv` | one row per user | 5,998 | notebook 02 (user table formatted + extra features) |
-| `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means cluster) |
+| `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means and DBSCAN cluster) |
 | `data/user_perks.csv` | one row per user | 5,998 | notebook 03 – **final deliverable**: `user_id`, `segment`, `perk`, `perk_source`, `pilot_perk` |
+| `data/flights.csv` | one row per booked flight (trip) | 13,717 | SQL `SQL/filtered_tables.sql` – source table filtered to the cohort |
+| `data/hotels.csv` | one row per booked hotel stay (trip) | 14,313 | SQL `SQL/filtered_tables.sql` – source table filtered to the cohort |
 
 **Missing values are structural, not errors:** flight columns are empty when no flight was booked, hotel columns when no hotel was booked, trip columns for browsing-only sessions (see notebook 01, section 3.4). They are never filled with 0.
 
@@ -153,3 +155,12 @@ All columns of `users_features.csv`, plus:
 | `pilot_perk` | text | New perk to A/B test for the segment (e.g. 48-h Fare Lock for Dreamers) | empty for All-rounders |
 | `kmeans_cluster` | int | K-Means cluster (k = 8) on 9 standardized behavioral features | bookers only – empty for Dreamers; used to check the rules, not to assign perks |
 | `dbscan_cluster` | int | DBSCAN cluster (ε = 1.5, MinPts = 18) on the same 9 features; −1 = noise (outlier) | bookers only – empty for Dreamers; used as a second check, not to assign perks |
+
+## 6. Filtered source tables (`flights.csv`, `hotels.csv`)
+The original Postgres `flights` and `hotels` tables, filtered by `SQL/filtered_tables.sql` to the trips booked in cohort sessions (users with more than 7 sessions from 2023-01-04 onward). One row per `trip_id`; join to the session tables on `trip_id`. Kept for reference – the notebooks read the joined `session_level_table.csv` instead.
+
+Columns are the same as in section 1 (*From `flights`* / *From `hotels`*), plus the join key:
+
+| Column | Type | Description | Notes |
+|---|---|---|---|
+| `trip_id` | text | Trip the flight / hotel stay belongs to | key to `sessions`; unique in both files |
