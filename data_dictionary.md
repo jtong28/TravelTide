@@ -4,9 +4,9 @@ All tables cover Elena's cohort: sessions from **2023-01-04** onward, users with
 
 | File | Grain | Rows | Created by |
 |---|---|---:|---|
-| `data/session_level_table.csv` | one row per browsing session | 49,211 | SQL `session_base` (`sql/JT_session_and_user_base.sql`) |
+| `data/session_level_table.csv` | one row per browsing session | 49,211 | SQL `session_base` (`SQL/JT_session_and_user_base.sql`) |
 | `data/sessions_clean.csv` | one row per browsing session | 49,211 | notebook 01 (cleaned + derived columns) |
-| `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`sql/JT_session_and_user_base.sql`) |
+| `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`SQL/JT_session_and_user_base.sql`) |
 | `data/users_features.csv` | one row per user | 5,998 | notebook 02 (user table formatted + extra features) |
 | `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means cluster) |
 | `data/user_perks.csv` | one row per user | 5,998 | notebook 03 – **final deliverable**: `user_id`, `segment`, `perk`, `perk_source`, `pilot_perk` |

@@ -14,20 +14,25 @@ Using a relational database spanning customer profiles, session logs, flight boo
 ```
 TravelTide/
 ├── data/                              # SQL exports (CSV) + files written by the notebooks
+│   ├── flights.csv                    # raw flights table export (reference only, not read by the notebooks)
+│   ├── hotels.csv                     # raw hotels table export (reference only, not read by the notebooks)
 │   ├── session_level_table.csv        # one row per session (SQL session_base)
 │   ├── user_level_table.csv           # one row per user (SQL user_base)
 │   ├── sessions_clean.csv             # cleaned session table, written by notebook 01
 │   ├── users_features.csv             # user table + behavioral features, written by notebook 02
-│   ├── users_segments.csv             # all features + segment, perks and K-Means cluster, written by notebook 03
+│   ├── users_segments.csv             # all features + segment, perks, K-Means and DBSCAN cluster, written by notebook 03
 │   └── user_perks.csv                 # final deliverable: one perk per customer (user_id, segment, perk, perk_source, pilot_perk)
 ├── notebooks/
 │   ├── 01_EDA_Cleaning.ipynb          # data cleaning & exploratory data analysis
 │   ├── 02_User_Features.ipynb         # user-level features and their distributions
-│   └── 03_Segments_Models.ipynb       # rule-based segments, habit-or-luck test, perks, K-Means (DBSCAN to follow)
-├── sql/
-│   └── JT_session_and_user_base.sql   # cohort filter, session- and user-level tables
+│   └── 03_Segments_Models.ipynb       # rule-based segments, habit-or-luck test, perks, K-Means & DBSCAN
+├── SQL/
+│   ├── schema_exploration.sql         # first look at the database: table and column names
+│   ├── filtered_tables.sql            # early cohort-filter drafts on the raw tables
+│   └── JT_session_and_user_base.sql   # final cohort filter, session- and user-level tables
 ├── images/
-│   └── TravelTide_ERD.png             # database schema
+│   ├── TravelTide_ERD.png             # database schema
+│   └── TravelTide_ERD.pdf             # database schema (PDF)
 ├── data_dictionary.md                 # every column of every CSV, with notes
 ├── .env.example                       # template for the optional database connection
 ├── requirements.txt
