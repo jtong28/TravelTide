@@ -4,14 +4,12 @@ All tables cover Elena's cohort: sessions from **2023-01-04** onward, users with
 
 | File | Grain | Rows | Created by |
 |---|---|---:|---|
-| `data/session_level_table.csv` | one row per browsing session | 49,211 | SQL `session_base` (`SQL/JT_session_and_user_base.sql`) |
+| `data/session_level_table.csv` | one row per browsing session | 49,211 | SQL `session_base` (`sql/JT_session_and_user_base.sql`) |
 | `data/sessions_clean.csv` | one row per browsing session | 49,211 | notebook 01 (cleaned + derived columns) |
-| `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`SQL/JT_session_and_user_base.sql`) |
+| `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`sql/JT_session_and_user_base.sql`) |
 | `data/users_features.csv` | one row per user | 5,998 | notebook 02 (user table formatted + extra features) |
-| `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means and DBSCAN cluster) |
+| `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means cluster) |
 | `data/user_perks.csv` | one row per user | 5,998 | notebook 03 – **final deliverable**: `user_id`, `segment`, `perk`, `perk_source`, `pilot_perk` |
-| `data/flights.csv` | one row per booked flight (trip) | 13,717 | SQL `SQL/filtered_tables.sql` – source table filtered to the cohort |
-| `data/hotels.csv` | one row per booked hotel stay (trip) | 14,313 | SQL `SQL/filtered_tables.sql` – source table filtered to the cohort |
 
 **Missing values are structural, not errors:** flight columns are empty when no flight was booked, hotel columns when no hotel was booked, trip columns for browsing-only sessions (see notebook 01, section 3.4). They are never filled with 0.
 
@@ -25,13 +23,13 @@ Raw SQL export – the four Postgres tables joined on `user_id` and `trip_id`.
 |---|---|---|---|
 | `session_id` | text | Unique ID of a browsing session | primary key |
 | `user_id` | int | User who started the session | key to `users` |
-| `trip_id` | text | Trip booked (or cancelled) in this session | empty for browsing-only sessions; a cancellation session repeats the trip_id of the original booking |
+| `trip_id` | text | Trip booked (or canceled) in this session | empty for browsing-only sessions; a cancellation session repeats the trip_id of the original booking |
 | `session_start`, `session_end` | timestamp | Start and end of the session | |
 | `page_clicks` | int | Clicks during the session | cancellation sessions are capped at 200 |
 | `flight_discount`, `hotel_discount` | bool | A flight / hotel discount was **offered** in the session | offered ≠ used – see `discount_used` |
 | `flight_discount_amount`, `hotel_discount_amount` | numeric | Discount as a share of the price (0.10 = 10 %) | empty when no discount was offered |
 | `flight_booked`, `hotel_booked` | bool | A flight / hotel was booked in the session | repeated on cancellation sessions |
-| `cancellation` | bool | The session cancelled an earlier booking | 610 sessions = 610 cancelled trips |
+| `cancellation` | bool | The session canceled an earlier booking | 610 sessions = 610 canceled trips |
 
 ### SQL helper
 | Column | Type | Description | Notes |
@@ -59,7 +57,7 @@ Raw SQL export – the four Postgres tables joined on `user_id` and `trip_id`.
 | `destination_airport_lat`, `destination_airport_lon` | numeric | Coordinates of the destination airport | |
 | `seats` | int | Seats booked | party size; r = 0.98 with `rooms` |
 | `return_flight_booked` | bool | Return flight included | False = one-way (618 flights) |
-| `departure_time`, `return_time` | timestamp | Outbound / return flight | return = departure + whole days; 70 flight-only trips have identical timestamps (data artefact, kept) |
+| `departure_time`, `return_time` | timestamp | Outbound / return flight | return = departure + whole days; 70 flight-only trips have identical timestamps (data artifact, kept) |
 | `checked_bags` | int | Checked bags | |
 | `trip_airline` | text | Airline | 2 names repaired after import (non-UTF-8) |
 | `base_fare_usd` | numeric | Fare for **all seats** before discount (USD) | ≈ $0.18 per km and seat for return flights, half for one-way |
@@ -84,8 +82,8 @@ Same 49,211 rows. Text formatted (Title Case, upper-case airport codes, `USA` / 
 | `home_airport_name`, `destination_airport_name` | text | Full airport names (package `airports-py`) | 2 closed Berlin airports added by hand |
 | `nights_calc` | int | Calendar nights = check-out date − check-in date | empty for 0 or negative nights |
 | `invalid_hotel_dates` | bool | Hotel booked with check-out on or before check-in | 2.9 % of hotel sessions |
-| `trip_cancelled` | bool | The session's trip was cancelled at some point | |
-| `valid_booking` | bool | Booking session whose trip was never cancelled | 15,489 valid bookings – **use this to analyze travel behavior** |
+| `trip_cancelled` | bool | The session's trip was canceled at some point | |
+| `valid_booking` | bool | Booking session whose trip was never canceled | 15,489 valid bookings – **use this to analyze travel behavior** |
 | `age` | int | Exact age in years on 2023-07-28 | |
 | `tenure_months` | float | Months since sign-up on 2023-07-28 (days / 30.44) | |
 | `is_minor` | bool | Under 18 on 2023-07-28 | 246 users – kept, flagged |
@@ -103,7 +101,7 @@ Same 49,211 rows. Text formatted (Title Case, upper-case airport codes, `USA` / 
 ---
 
 ## 3. User-level table (`user_level_table.csv`)
-One row per cohort user (5,998). Trip metrics use **valid bookings only** (cancelled trips excluded). Users without a valid trip ("Dreamers", 556) have 0 trips and empty averages.
+One row per cohort user (5,998). Trip metrics use **valid bookings only** (canceled trips excluded). Users without a valid trip ("Dreamers", 556) have 0 trips and empty averages.
 
 | Column | Type | Description | Notes |
 |---|---|---|---|
@@ -114,8 +112,8 @@ One row per cohort user (5,998). Trip metrics use **valid bookings only** (cance
 | `session_count` | int | Sessions in the cohort window | ≥ 8 by definition |
 | `avg_session_min` | numeric | Average session length (minutes) | |
 | `avg_page_clicks` | numeric | Average clicks per session | |
-| `cancelled_trips` | int | Number of cancelled trips | |
-| `valid_trips` | int | Number of kept (not cancelled) trips | 0 = Dreamer |
+| `cancelled_trips` | int | Number of canceled trips | |
+| `valid_trips` | int | Number of kept (not canceled) trips | 0 = Dreamer |
 | `flights`, `hotels` | int | Valid trips with a flight / with a hotel | |
 | `combo_share`, `flight_only_share`, `hotel_only_share` | numeric | Share of valid trips that are flight + hotel / flight only / hotel only | sum to 1 |
 | `avg_seats`, `avg_rooms`, `avg_bags` | numeric | Average party size and luggage per trip | |
@@ -124,7 +122,7 @@ One row per cohort user (5,998). Trip metrics use **valid bookings only** (cance
 | `weekend_start_share` | numeric | Share of trips starting Friday or Saturday | |
 | `discount_share` | numeric | Share of valid trips with a discount on the booked part | same definition as `discount_used` (SQL `any_discount`) |
 | `total_spend_usd`, `avg_spend_per_trip_usd` | numeric | Spend after discounts | empty for Dreamers (not applicable) and 26 users whose only trips had invalid hotel dates (unknown) – 582 users in total |
-| `max_visits_same_city` | int | Most valid trips to one city (`trip_city`) | ≥ 2 for 805 users → Favourite-City Returners |
+| `max_visits_same_city` | int | Most valid trips to one city (`trip_city`) | ≥ 2 for 805 users → Favorite-City Returners |
 
 ---
 
@@ -137,7 +135,7 @@ All columns of the user-level table (section 3, text formatted as in notebook 01
 | `party_size` | float | Larger of `avg_seats` and `avg_rooms` | seats and rooms r = 0.98 → one feature; ≥ 1.5 = Family Crew / Couples & Friends |
 | `is_dreamer` | bool | No valid trip | 556 users |
 | `repeat_city` | bool | `max_visits_same_city` ≥ 2 | 805 users |
-| `cancel_rate` | float | cancelled trips ÷ (valid + cancelled trips) | empty for users who never booked |
+| `cancel_rate` | float | canceled trips ÷ (valid + canceled trips) | empty for users who never booked |
 | `avg_discount_pct` | float | Average discount on discounted valid bookings, in % – only discounts on the booked part (larger one if both were used) | how *big* the discount is (`discount_share` = how *often*); empty if no discount was used |
 | `long_haul_share` | float | Share of valid flights over 3,000 km | empty for users without a valid flight; r = 0.7 with `avg_distance_km` |
 
@@ -148,19 +146,10 @@ All columns of `users_features.csv`, plus:
 
 | Column | Type | Description | Notes |
 |---|---|---|---|
-| `segment` | text | Rule-based segment, first matching rule in priority order: Dreamers, Family Crew, Couples & Friends, Hotel Stayers, Favourite-City Returners, Deal Hunters, Long-haul Travellers, Package Travellers | rules: notebook 03, section 2; users matching no rule = `All-rounders` |
-| `core_perk` | text | Core perk of the segment (Elena's five + extra-legroom seat for Long-haul Travellers) | notebook 03, section 4; All-rounders: "assigned by perk score" |
+| `segment` | text | Rule-based segment, first matching rule in priority order: Dreamers, Family Crew, Couples & Friends, Hotel Stayers, Favorite-City Returners, Deal Hunters, Long-haul Travelers, Package Travelers | rules: notebook 03, section 2; users matching no rule = `All-rounders` |
+| `core_perk` | text | Core perk of the segment (Elena's five + extra-legroom seat for Long-haul Travelers) | notebook 03, section 4; All-rounders: "assigned by perk score" |
 | `perk` | text | **Final perk** of the customer: the segment's core perk, or for All-rounders the perk with the highest perk score | notebook 03, 4.1 |
 | `perk_source` | text | `segment rule` or `perk score` | |
 | `pilot_perk` | text | New perk to A/B test for the segment (e.g. 48-h Fare Lock for Dreamers) | empty for All-rounders |
 | `kmeans_cluster` | int | K-Means cluster (k = 8) on 9 standardized behavioral features | bookers only – empty for Dreamers; used to check the rules, not to assign perks |
 | `dbscan_cluster` | int | DBSCAN cluster (ε = 1.5, MinPts = 18) on the same 9 features; −1 = noise (outlier) | bookers only – empty for Dreamers; used as a second check, not to assign perks |
-
-## 6. Filtered source tables (`flights.csv`, `hotels.csv`)
-The original Postgres `flights` and `hotels` tables, filtered by `SQL/filtered_tables.sql` to the trips booked in cohort sessions (users with more than 7 sessions from 2023-01-04 onward). One row per `trip_id`; join to the session tables on `trip_id`. Kept for reference – the notebooks read the joined `session_level_table.csv` instead.
-
-Columns are the same as in section 1 (*From `flights`* / *From `hotels`*), plus the join key:
-
-| Column | Type | Description | Notes |
-|---|---|---|---|
-| `trip_id` | text | Trip the flight / hotel stay belongs to | key to `sessions`; unique in both files |

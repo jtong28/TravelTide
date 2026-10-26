@@ -30,7 +30,7 @@ WITH
      - Keeps full session detail before any aggregation.
      - The user-level CTE builds directly on it (GROUP BY user_id) without repeating filters or joins.
      - Separates data prep from metric calculation: easier debugging, consistent metrics.
-     - A cancelled trip can appear in two sessions with the same trip_id, so the user level needs
+     - A canceled trip can appear in two sessions with the same trip_id, so the user level needs
        COUNT(DISTINCT trip_id) and explicit cancellation handling.
      - Explicit columns: each column appears once and its source table is clear. */
   session_base AS (
@@ -102,14 +102,14 @@ WITH
     FROM session_base
   ),
 
-  -- Step 5: Trips that were cancelled (the cancellation session repeats the original trip_id).
+  -- Step 5: Trips that were canceled (the cancellation session repeats the original trip_id).
   cancelled_trips AS (
     SELECT DISTINCT trip_id
     FROM session_base
     WHERE cancellation
   ),
 
-  /* Step 6: valid_trips – one row per booked, NOT cancelled trip, with trip-level metrics.
+  /* Step 6: valid_trips – one row per booked, NOT canceled trip, with trip-level metrics.
      Only the booking session of a trip is kept (cancellation = FALSE), so each trip counts once. */
   valid_trips AS (
     SELECT
@@ -181,7 +181,7 @@ WITH
     GROUP BY user_id
   ),
 
-  -- Step 8: Most visits to one city per user (for Favourite-City Returners), incl. hotel-only trips.
+  -- Step 8: Most visits to one city per user (for Favorite-City Returners), incl. hotel-only trips.
   dest_repeat AS (
     SELECT user_id, MAX(visits) AS max_visits_same_city
     FROM (
