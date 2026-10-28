@@ -3,20 +3,41 @@
 <!-- build 20263.26.1022.1645                               -->
 <workbook _.fcp.WorkbookFingerprinting.true...author-id='ef4529972d07655218b108b2a0dfd5e190ea1f5db8a5be4c44c13e911384f5c5' _.fcp.WorkbookFingerprinting.true...creator-author-id='ef4529972d07655218b108b2a0dfd5e190ea1f5db8a5be4c44c13e911384f5c5' _.fcp.WorkbookFingerprinting.true...creator-license-type='public' _.fcp.WorkbookFingerprinting.true...creator-machine-id='ef4529972d07655218b108b2a0dfd5e190ea1f5db8a5be4c44c13e911384f5c5' _.fcp.WorkbookFingerprinting.true...license-type='public' _.fcp.WorkbookFingerprinting.true...machine-id='ef4529972d07655218b108b2a0dfd5e190ea1f5db8a5be4c44c13e911384f5c5' locale='en_US' original-version='18.1' source-build='2026.3.0 (20263.26.1022.1645)' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
   <document-format-change-manifest>
+    <AccessibleZoneTabOrder />
     <AnimationOnByDefault />
+    <AutoCreateAndUpdateDSDPhoneLayouts />
+    <IntuitiveSorting />
+    <IntuitiveSorting_SP2 />
+    <Layers />
+    <MapboxVectorStylesAndLayers />
     <MarkAnimation />
     <ObjectModelEncapsulateLegacy />
     <ObjectModelExtractV2 />
     <ObjectModelTableType />
     <SchemaViewerObjectModel />
+    <SetMembershipControl />
     <SheetIdentifierTracking />
+    <SortTagCleanup />
     <VConnDownstreamExtractsWithWarnings />
     <WindowsPersistSimpleIdentifiers />
     <_.fcp.WorkbookFingerprinting.true...WorkbookFingerprinting />
+    <ZoneBackgroundTransparency />
   </document-format-change-manifest>
   <preferences>
     <preference name='ui.encoding.shelf.height' value='24' />
     <preference name='ui.shelf.height' value='26' />
+    <color-palette custom='true' name='TravelTide blues' type='ordered-sequential'>
+      <color>#ddf1e4</color>
+      <color>#a8ddb5</color>
+      <color>#4eb3d3</color>
+      <color>#3d90f3</color>
+      <color>#1b4f8a</color>
+    </color-palette>
+    <color-palette custom='true' name='TravelTide booking type' type='regular'>
+      <color>#1b4f8a</color>
+      <color>#4eb3d3</color>
+      <color>#3d90f3</color>
+    </color-palette>
   </preferences>
   <datasources>
     <datasource caption='users_segments+' inline='true' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' version='18.1'>
@@ -1585,6 +1606,37 @@
         </metadata-records>
       </connection>
       <aliases enabled='yes' />
+      <column datatype='string' name='[:Measure Names]' role='dimension' type='nominal'>
+        <aliases>
+          <alias key='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]&quot;' value='Flights' />
+        </aliases>
+      </column>
+      <column caption='Route' datatype='string' name='[Calculation_1556418989539328]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[home_city (sessions_clean.csv)] + &quot; → &quot; + [destination]' />
+      </column>
+      <column caption='Top route line' datatype='spatial' name='[Calculation_2201557567016963]' role='measure' type='nominal'>
+        <calculation class='tableau' formula='IF [Top 40 routes] THEN [Calculation_2266428583809034] END' />
+      </column>
+      <column caption='Destination point' datatype='spatial' name='[Calculation_2201557567262724]' role='measure' type='nominal'>
+        <calculation class='tableau' formula='MAKEPOINT([destination_airport_lat], [destination_airport_lon])' />
+      </column>
+      <column caption='In North America' datatype='boolean' name='[Calculation_2201557574529029]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[destination_airport_lat] &gt; 12 AND [destination_airport_lon] &gt; -170 AND [destination_airport_lon] &lt; -50' />
+      </column>
+      <column caption='Map scope' datatype='boolean' name='[Calculation_2201557575081991]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[Parameters].[Parameter 2201557574750214] = &quot;World&quot; OR [Calculation_2201557574529029]' />
+      </column>
+      <column caption='Selected City' datatype='string' name='[Calculation_2201557586919434]' role='measure' type='nominal'>
+        <calculation class='tableau' formula='IF COUNTD([destination]) = 1 THEN MIN([destination]) ELSE &quot;All destinations&quot; END' />
+      </column>
+      <column caption='Share of all flights' datatype='real' name='[Calculation_2201557589823499]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM(IIF([valid_booking] AND [flight_booked], 1, 0)) / MIN({FIXED : SUM(IIF([valid_booking] AND [flight_booked], 1, 0))})' />
+      </column>
+      <column caption='Rank' datatype='integer' name='[Calculation_2201557590605836]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='INDEX()'>
+          <table-calc ordering-type='Rows' />
+        </calculation>
+      </column>
       <column caption='Customers' datatype='integer' name='[Calculation_2266428425261057]' role='measure' type='quantitative'>
         <calculation class='tableau' formula='COUNTD([user_id])' />
       </column>
@@ -1601,13 +1653,28 @@
         <calculation class='tableau' formula='AVG([trip_spend_usd])' />
       </column>
       <column caption='Kept trip' datatype='boolean' name='[Calculation_2266428427128838]' role='dimension' type='nominal'>
-        <calculation class='tableau' formula='[valid_booking]=True' />
+        <calculation class='tableau' formula='[valid_booking]' />
+      </column>
+      <column caption='Kept flight' datatype='boolean' name='[Calculation_2266428429496327]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[valid_booking] AND [flight_booked]' />
+      </column>
+      <column caption='Package share' datatype='real' name='[Calculation_2266428429856776]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='SUM(IIF([valid_booking] AND [booking_type] = &quot;flight + hotel&quot;, 1, 0)) / SUM(IIF([valid_booking], 1, 0))' />
+      </column>
+      <column caption='Route line' datatype='spatial' name='[Calculation_2266428583809034]' role='measure' type='nominal'>
+        <calculation class='tableau' formula='MAKELINE(MAKEPOINT([home_airport_lat], [home_airport_lon]), MAKEPOINT([destination_airport_lat], [destination_airport_lon]))' />
+      </column>
+      <column caption='Segment order' datatype='integer' name='[Calculation_2266428584087563]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='CASE [segment] &#13;&#10;WHEN &quot;Dreamers&quot; THEN 1 &#13;&#10;WHEN &quot;Family Crew&quot; THEN 2 &#13;&#10;WHEN &quot;Couples &amp; Friends&quot; THEN 3 &#13;&#10;WHEN &quot;Hotel Stayers&quot; THEN 4 &#13;&#10;WHEN &quot;Favorite-City Returners&quot; THEN 5 &#13;&#10;WHEN &quot;Deal Hunters&quot; THEN 6 &#13;&#10;WHEN &quot;Long-haul Travelers&quot; THEN 7 &#13;&#10;WHEN &quot;Package Travelers&quot; THEN 8 &#13;&#10;ELSE 9 END' />
       </column>
       <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
       <column caption='users_segments.csv' datatype='table' name='[__tableau_internal_object_id__].[users_segments.csv_7752DC8C6393493ABBE3430939CB4EB7]' role='measure' type='quantitative' />
+      <column datatype='string' name='[booking_type]' role='dimension' type='nominal' />
       <column aggregation='Sum' datatype='real' name='[dbscan_cluster]' role='dimension' type='ordinal' />
+      <column datatype='string' name='[destination]' role='dimension' type='nominal' />
       <column aggregation='Avg' datatype='real' name='[destination_airport_lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
       <column aggregation='Avg' datatype='real' name='[destination_airport_lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+      <column datatype='boolean' name='[flight_booked]' role='dimension' type='nominal' />
       <column aggregation='Avg' datatype='real' name='[home_airport_lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
       <column aggregation='Avg' datatype='real' name='[home_airport_lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
       <column datatype='string' name='[home_city (sessions_clean.csv)]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
@@ -1619,6 +1686,21 @@
       <column datatype='string' name='[trip_city]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
       <column aggregation='Sum' datatype='integer' name='[user_id (sessions_clean.csv)]' role='dimension' type='ordinal' />
       <column aggregation='Sum' datatype='integer' name='[user_id]' role='dimension' type='ordinal' />
+      <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+      <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+      <column-instance column='[booking_type]' derivation='None' name='[none:booking_type:nk]' pivot='key' type='nominal' />
+      <group caption='Action (destination)' hidden='true' name='[Action (destination)]' name-style='unqualified' user:auto-column='sheet_link'>
+        <groupfilter function='crossjoin'>
+          <groupfilter function='level-members' level='[destination]' />
+        </groupfilter>
+      </group>
+      <group caption='Top 40 routes' name='[Top 40 routes]' name-style='unqualified' user:ui-builder='filter-group'>
+        <groupfilter count='40' end='top' function='end' units='records' user:ui-marker='end'>
+          <groupfilter direction='DESC' expression='SUM(IIF([valid_booking] AND [flight_booked], 1, 0))' function='order' user:ui-marker='order'>
+            <groupfilter function='level-members' level='[Calculation_1556418989539328]' user:ui-manual-selection='true' user:ui-manual-selection-all-when-empty='true' user:ui-manual-selection-is-empty='true' user:ui-marker='enumerate' />
+          </groupfilter>
+        </groupfilter>
+      </group>
       <drill-paths>
         <drill-path name='home_country, home_city'>
           <field>[home_country]</field>
@@ -3194,11 +3276,31 @@
           </metadata-records>
         </connection>
       </extract>
-      <layout common-percentage='1' dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' user-set-layout-v2='true' />
+      <layout common-percentage='0.973988' dim-ordering='alphabetic' measure-ordering='alphabetic' parameter-percentage='0.0260116' show-structure='true' user-set-layout-v2='true' />
+      <style>
+        <style-rule element='mark'>
+          <encoding attr='color' field='[none:booking_type:nk]' palette='TravelTide booking type' type='palette'>
+            <map to='#1b4f8a'>
+              <bucket>&quot;flight + hotel&quot;</bucket>
+            </map>
+            <map to='#3d90f3'>
+              <bucket>&quot;hotel only&quot;</bucket>
+            </map>
+            <map to='#4eb3d3'>
+              <bucket>&quot;flight only&quot;</bucket>
+            </map>
+          </encoding>
+        </style-rule>
+      </style>
       <semantic-values>
         <semantic-value key='[Country].[Name]' value='&quot;Germany&quot;' />
       </semantic-values>
       <date-options start-of-week='monday' />
+      <datasource-dependencies datasource='Parameters'>
+        <column caption='Map view' datatype='string' name='[Parameter 2201557574750214]' param-domain-type='list' role='measure' type='nominal' value='&quot;North America&quot;'>
+          <calculation class='tableau' formula='&quot;North America&quot;' />
+        </column>
+      </datasource-dependencies>
       <object-graph>
         <objects>
           <object caption='sessions_clean.csv' id='sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8'>
@@ -3492,7 +3594,6 @@
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
               <collation flag='0' name='LEN_RUS' />
-              <object-id>[habit_or_luck.csv_4691C3B353DE4A789AA8E8B28C3353C1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>real</remote-name>
@@ -3506,7 +3607,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[habit_or_luck.csv_4691C3B353DE4A789AA8E8B28C3353C1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>luck_avg</remote-name>
@@ -3520,7 +3620,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[habit_or_luck.csv_4691C3B353DE4A789AA8E8B28C3353C1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>luck_low</remote-name>
@@ -3534,7 +3633,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[habit_or_luck.csv_4691C3B353DE4A789AA8E8B28C3353C1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>luck_high</remote-name>
@@ -3548,7 +3646,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>10</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[habit_or_luck.csv_4691C3B353DE4A789AA8E8B28C3353C1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>ratio</remote-name>
@@ -3562,7 +3659,6 @@
               <aggregation>Sum</aggregation>
               <approx-count>8</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[habit_or_luck.csv_4691C3B353DE4A789AA8E8B28C3353C1]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>verdict</remote-name>
@@ -3577,7 +3673,6 @@
               <approx-count>3</approx-count>
               <contains-null>true</contains-null>
               <collation flag='0' name='LEN_RUS' />
-              <object-id>[habit_or_luck.csv_4691C3B353DE4A789AA8E8B28C3353C1]</object-id>
             </metadata-record>
           </metadata-records>
         </connection>
@@ -3610,9 +3705,474 @@
         </objects>
       </object-graph>
     </datasource>
+    <datasource hasconnection='false' inline='true' name='Parameters' version='18.1'>
+      <aliases enabled='yes' />
+      <column caption='Map view' datatype='string' name='[Parameter 2201557574750214]' param-domain-type='list' role='measure' type='nominal' value='&quot;North America&quot;'>
+        <calculation class='tableau' formula='&quot;North America&quot;' />
+        <members>
+          <member value='&quot;North America&quot;' />
+          <member value='&quot;World&quot;' />
+        </members>
+      </column>
+    </datasource>
   </datasources>
+  <mapsources>
+    <mapsource name='Tableau' />
+  </mapsources>
+  <actions>
+    <action caption='Highlight 1 (generated)' name='[Action1_116FFD1E9E7445DFB1A112D6A12EEC0C]'>
+      <activation auto-clear='true' type='on-select' />
+      <source type='sheet' worksheet='What they book' />
+      <command command='tsc:brush'>
+        <param name='field-captions' value='booking_type' />
+        <param name='target' value='What they book' />
+      </command>
+    </action>
+    <action caption='Click a city' name='[Action2_67AC14CD2A3241068C3F6AF7662BDADB]'>
+      <activation auto-clear='true' type='on-select' />
+      <source dashboard='Dashboard 1' type='sheet' worksheet='Map' />
+      <link caption='Click a city' delimiter=',' escape='\' expression='tsl:Dashboard%201?%5Bfederated.09q4qmo08x3eu5167tb3x1mpbxnr%5D.%5Bdestination%5D~s0=&lt;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[destination]~na&gt;' include-null='true' multi-select='true' url-escape='true' />
+      <command command='tsc:tsl-filter'>
+        <param name='exclude' value='Avg spend per trip,Sessions,Package share,Customers,Map,Total spend,Trips,What they book,When trips start,Where they live' />
+        <param name='single-select' value='' />
+        <param name='target' value='Dashboard 1' />
+      </command>
+    </action>
+    <datasources>
+      <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+    </datasources>
+    <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+      <column datatype='string' name='[destination]' role='dimension' type='nominal' />
+    </datasource-dependencies>
+  </actions>
   <worksheets>
-    <worksheet name='Sheet 1'>
+    <worksheet name='Avg spend per trip'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontalignment='1' fontname='Tableau Medium' fontsize='16'>Avg spend per trip</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Customers' datatype='integer' name='[Calculation_2266428425261057]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='COUNTD([user_id])' />
+            </column>
+            <column caption='Avg spend per trip' datatype='real' name='[Calculation_2266428426661893]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='AVG([trip_spend_usd])' />
+            </column>
+            <column datatype='real' name='[trip_spend_usd]' role='measure' type='quantitative' />
+            <column aggregation='Sum' datatype='integer' name='[user_id]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_2266428425261057]' derivation='User' name='[usr:Calculation_2266428425261057:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428426661893]' derivation='User' name='[usr:Calculation_2266428426661893:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]' value='c&quot;$&quot;#,##0;(&quot;$&quot;#,##0)' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425261057:qk]' />
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run fontcolor='#555555' fontname='Tableau Medium'>Avg spend per trip</run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#0074c7' fontname='Tableau Medium' fontsize='11'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#555555' fontname='Tableau Medium'>median spend $840</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='vertical-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{C06224CD-9313-4B11-B555-88540D99C039}' />
+    </worksheet>
+    <worksheet name='Checks'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontname='Tableau Medium'>Checks</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Customers' datatype='integer' name='[Calculation_2266428425261057]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='COUNTD([user_id])' />
+            </column>
+            <column caption='Trips' datatype='integer' name='[Calculation_2266428425768962]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([valid_trips])' />
+            </column>
+            <column caption='Sessions' datatype='integer' name='[Calculation_2266428426076163]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([session_count])' />
+            </column>
+            <column caption='Total spend' datatype='real' name='[Calculation_2266428426543108]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([total_spend_usd])' />
+            </column>
+            <column caption='Avg spend per trip' datatype='real' name='[Calculation_2266428426661893]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='AVG([trip_spend_usd])' />
+            </column>
+            <column caption='Package share' datatype='real' name='[Calculation_2266428429856776]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM(IIF([valid_booking] AND [booking_type] = &quot;flight + hotel&quot;, 1, 0)) / SUM(IIF([valid_booking], 1, 0))' />
+            </column>
+            <column datatype='string' name='[booking_type]' role='dimension' type='nominal' />
+            <column datatype='integer' name='[session_count]' role='measure' type='quantitative' />
+            <column datatype='real' name='[total_spend_usd]' role='measure' type='quantitative' />
+            <column datatype='real' name='[trip_spend_usd]' role='measure' type='quantitative' />
+            <column aggregation='Sum' datatype='integer' name='[user_id]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_2266428425261057]' derivation='User' name='[usr:Calculation_2266428425261057:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428425768962]' derivation='User' name='[usr:Calculation_2266428425768962:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428426076163]' derivation='User' name='[usr:Calculation_2266428426076163:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428426543108]' derivation='User' name='[usr:Calculation_2266428426543108:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428426661893]' derivation='User' name='[usr:Calculation_2266428426661893:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428429856776]' derivation='User' name='[usr:Calculation_2266428429856776:qk]' pivot='key' type='quantitative' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+            <column datatype='integer' name='[valid_trips]' role='measure' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]'>
+            <groupfilter function='union' user:op='manual'>
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425261057:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428429856776:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426076163:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426543108:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425768962:qk]&quot;' />
+            </groupfilter>
+          </filter>
+          <manual-sort column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]' direction='ASC'>
+            <dictionary>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425261057:qk]&quot;</bucket>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425768962:qk]&quot;</bucket>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426076163:qk]&quot;</bucket>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426543108:qk]&quot;</bucket>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]&quot;</bucket>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428429856776:qk]&quot;</bucket>
+            </dictionary>
+          </manual-sort>
+          <filter class='quantitative' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425768962:qk]' included-values='in-range' />
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425768962:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='width' value='233' />
+            <format attr='height' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]' value='35' />
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428429856776:qk]' value='n#,##0.000;-#,##0.000' />
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]' value='C1033%' />
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426543108:qk]' value='C1033%' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Text' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Multiple Values]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minwidth' value='-1' />
+                <format attr='maxwidth' value='-1' />
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]</rows>
+        <cols />
+      </table>
+      <simple-id uuid='{AF2B6940-D33D-4158-AEE5-7AC26EE798EB}' />
+    </worksheet>
+    <worksheet name='City KPIs'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontname='Tableau Medium'>&lt;Sheet Name&gt;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Share of all flights' datatype='real' name='[Calculation_2201557589823499]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM(IIF([valid_booking] AND [flight_booked], 1, 0)) / MIN({FIXED : SUM(IIF([valid_booking] AND [flight_booked], 1, 0))})' />
+            </column>
+            <column caption='Avg spend per trip' datatype='real' name='[Calculation_2266428426661893]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='AVG([trip_spend_usd])' />
+            </column>
+            <column caption='Kept flight' datatype='boolean' name='[Calculation_2266428429496327]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking] AND [flight_booked]' />
+            </column>
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+            <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
+            <column datatype='string' name='[destination]' role='dimension' type='nominal' />
+            <column datatype='boolean' name='[flight_booked]' role='dimension' type='nominal' />
+            <column-instance column='[Calculation_2266428429496327]' derivation='None' name='[none:Calculation_2266428429496327:nk]' pivot='key' type='nominal' />
+            <column datatype='real' name='[trip_spend_usd]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_2201557589823499]' derivation='User' name='[usr:Calculation_2201557589823499:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428426661893]' derivation='User' name='[usr:Calculation_2266428426661893:qk]' pivot='key' type='quantitative' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]'>
+            <groupfilter function='union' user:op='manual'>
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557589823499:qk]&quot;' />
+              <groupfilter function='member' level='[:Measure Names]' member='&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]&quot;' />
+            </groupfilter>
+          </filter>
+          <manual-sort column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]' direction='ASC'>
+            <dictionary>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]&quot;</bucket>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557589823499:qk]&quot;</bucket>
+              <bucket>&quot;[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]&quot;</bucket>
+            </dictionary>
+          </manual-sort>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Action (destination)]'>
+            <groupfilter function='member' level='[destination]' member='&quot;Los Angeles&quot;' user:ui-action-filter='[Action2_67AC14CD2A3241068C3F6AF7662BDADB]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2266428429496327:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Action (destination)]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='width' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]' value='207' />
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557589823499:qk]' value='p0.0%' />
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' value='N' />
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426661893:qk]' value='c&quot;$&quot;#,##0;(&quot;$&quot;#,##0)' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='height' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]' value='24' />
+            <format attr='width-header' value='256' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Multiple Values]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run bold='true' fontcolor='#1b4f8a' fontname='Tableau Medium'>&lt;</run>
+                <run bold='true' fontcolor='#1b4f8a' fontname='Tableau Medium'>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Multiple Values]</run>
+                <run bold='true' fontcolor='#1b4f8a' fontname='Tableau Medium'>&gt;</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minwidth' value='-1' />
+                <format attr='maxwidth' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[:Measure Names]</cols>
+      </table>
+      <simple-id uuid='{715EB9FC-CEB1-4951-B368-EE9929E98035}' />
+    </worksheet>
+    <worksheet name='City name'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Selected City' datatype='string' name='[Calculation_2201557586919434]' role='measure' type='nominal'>
+              <calculation class='tableau' formula='IF COUNTD([destination]) = 1 THEN MIN([destination]) ELSE &quot;All destinations&quot; END' />
+            </column>
+            <column caption='Kept flight' datatype='boolean' name='[Calculation_2266428429496327]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking] AND [flight_booked]' />
+            </column>
+            <column datatype='string' name='[destination]' role='dimension' type='nominal' />
+            <column datatype='boolean' name='[flight_booked]' role='dimension' type='nominal' />
+            <column-instance column='[Calculation_2266428429496327]' derivation='None' name='[none:Calculation_2266428429496327:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2201557586919434]' derivation='User' name='[usr:Calculation_2201557586919434:nk]' pivot='key' type='nominal' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Action (destination)]'>
+            <groupfilter function='member' level='[destination]' member='&quot;Los Angeles&quot;' user:ui-action-filter='[Action2_67AC14CD2A3241068C3F6AF7662BDADB]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2266428429496327:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Action (destination)]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='width' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557586919434:nk]' value='183' />
+            <format attr='height' value='161' />
+            <format attr='width' value='384' />
+            <format attr='color' value='#333333' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='height-header' value='36' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='font-size' value='8' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557586919434:nk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run fontcolor='#000000' fontname='Tableau Medium' fontsize='16'>&lt;</run>
+                <run fontcolor='#000000' fontname='Tableau Medium' fontsize='16'>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557586919434:nk]</run>
+                <run fontcolor='#000000' fontname='Tableau Medium' fontsize='16'>&gt;</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='left' />
+                <format attr='vertical-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-transparency' value='155' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minwidth' value='-1' />
+                <format attr='maxwidth' value='-1' />
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{624F4C76-35D3-4811-9197-A2DAE5FEE08F}' />
+    </worksheet>
+    <worksheet name='Customers'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontalignment='1' fontname='Tableau Medium' fontsize='16'>Customers</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Customers' datatype='integer' name='[Calculation_2266428425261057]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='COUNTD([user_id])' />
+            </column>
+            <column aggregation='Sum' datatype='integer' name='[user_id]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_2266428425261057]' derivation='User' name='[usr:Calculation_2266428425261057:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425261057:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run fontcolor='#555555' fontname='Tableau Medium'>Customers</run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#0074c7' fontname='Tableau Medium' fontsize='11'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425261057:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#555555' fontname='Tableau Medium'>5,442 booked at least one trip</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='vertical-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{5DC83BD2-7C46-4939-BA8E-B268FD6A10F6}' />
+    </worksheet>
+    <worksheet name='Destination details'>
       <table>
         <view>
           <datasources />
@@ -3630,11 +4190,1769 @@
         <rows />
         <cols />
       </table>
-      <simple-id uuid='{AF2B6940-D33D-4158-AEE5-7AC26EE798EB}' />
+      <simple-id uuid='{D4A11D54-D034-4EDE-BA05-1F42BF48FFBA}' />
+    </worksheet>
+    <worksheet name='Destinations'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontname='Tableau Medium' fontsize='14'>Destinations</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <mapsources>
+            <mapsource name='Tableau' />
+          </mapsources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Kept flight' datatype='boolean' name='[Calculation_2266428429496327]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking] AND [flight_booked]' />
+            </column>
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+            <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
+            <column-instance column='[destination_airport_lat]' derivation='Avg' name='[avg:destination_airport_lat:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[destination_airport_lon]' derivation='Avg' name='[avg:destination_airport_lon:qk]' pivot='key' type='quantitative' />
+            <column datatype='string' name='[destination]' role='dimension' type='nominal' />
+            <column aggregation='Avg' datatype='real' name='[destination_airport_lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+            <column aggregation='Avg' datatype='real' name='[destination_airport_lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+            <column datatype='boolean' name='[flight_booked]' role='dimension' type='nominal' />
+            <column-instance column='[Calculation_2266428429496327]' derivation='None' name='[none:Calculation_2266428429496327:nk]' pivot='key' type='nominal' />
+            <column-instance column='[destination]' derivation='None' name='[none:destination:nk]' pivot='key' type='nominal' />
+            <column-instance column='[valid_trips]' derivation='Sum' name='[sum:valid_trips:qk]' pivot='key' type='quantitative' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+            <column datatype='integer' name='[valid_trips]' role='measure' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2266428429496327:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[avg:destination_airport_lon:qk]' field-type='quantitative' max='50650959.635364346' min='-9249393.4274549894' projection='EPSG:3857' range-type='fixed' scope='cols' type='space' />
+            <encoding attr='space' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[avg:destination_airport_lat:qk]' field-type='quantitative' max='31809155.770504996' min='-39152708.156091072' projection='EPSG:3857' range-type='fixed' scope='rows' type='space' />
+          </style-rule>
+          <style-rule element='map'>
+            <format attr='washout' value='0.0' />
+          </style-rule>
+          <style-rule element='tooltip'>
+            <format attr='background-color' value='#ffffff' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Multipolygon' />
+            <mark-sizing mark-sizing-setting='marks-scaling-off' />
+            <encodings>
+              <size column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]' />
+              <tooltip column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[sum:valid_trips:qk]' />
+              <geometry column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Geometry (generated)]' />
+            </encodings>
+            <customized-tooltip>
+              <formatted-text>
+                <run fontcolor='#757575'>Destination:&#9;</run>
+                <run bold='true'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#757575'>Count of sessions:&#9;</run>
+                <run bold='true'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#757575'>Valid trips:&#9;</run>
+                <run bold='true'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[sum:valid_trips:qk]>]]></run>
+              </formatted-text>
+            </customized-tooltip>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-color' value='#0074c7' />
+                <format attr='size' value='1.5492265224456787' />
+                <format attr='mark-transparency' value='155' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[avg:destination_airport_lat:qk]</rows>
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[avg:destination_airport_lon:qk]</cols>
+      </table>
+      <simple-id uuid='{704AEB97-EDE2-404B-9EFB-6479EF415F1F}' />
+    </worksheet>
+    <worksheet name='Flights come from'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontname='Tableau Medium' fontsize='9'>Most flights come from </run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Rank' datatype='integer' name='[Calculation_2201557590605836]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='INDEX()'>
+                <table-calc ordering-type='Rows' />
+              </calculation>
+            </column>
+            <column caption='Kept flight' datatype='boolean' name='[Calculation_2266428429496327]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking] AND [flight_booked]' />
+            </column>
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+            <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
+            <column datatype='string' name='[destination]' role='dimension' type='nominal' />
+            <column datatype='boolean' name='[flight_booked]' role='dimension' type='nominal' />
+            <column datatype='string' name='[home_city (sessions_clean.csv)]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
+            <column-instance column='[Calculation_2266428429496327]' derivation='None' name='[none:Calculation_2266428429496327:nk]' pivot='key' type='nominal' />
+            <column-instance column='[home_city (sessions_clean.csv)]' derivation='None' name='[none:home_city (sessions_clean.csv):nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2201557590605836]' derivation='User' name='[usr:Calculation_2201557590605836:qk:2]' pivot='key' type='quantitative'>
+              <table-calc ordering-type='Columns' />
+            </column-instance>
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Action (destination)]'>
+            <groupfilter function='member' level='[destination]' member='&quot;Los Angeles&quot;' user:ui-action-filter='[Action2_67AC14CD2A3241068C3F6AF7662BDADB]' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2266428429496327:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='quantitative' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557590605836:qk:2]' included-values='in-range'>
+            <min>1</min>
+            <max>3</max>
+          </filter>
+          <shelf-sorts>
+            <shelf-sort-v2 dimension-to-sort='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city (sessions_clean.csv):nk]' direction='DESC' is-on-innermost-dimension='true' measure-to-sort-by='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' shelf='rows' />
+          </shelf-sorts>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2201557590605836:qk:2]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Action (destination)]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='height' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' value='45' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='height' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city (sessions_clean.csv):nk]' value='41' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='display-field-labels' scope='rows' value='false' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city (sessions_clean.csv):nk]</rows>
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]</cols>
+      </table>
+      <simple-id uuid='{411B7252-0FF4-413D-9D6C-4F94D2734615}' />
+    </worksheet>
+    <worksheet name='Map'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontcolor='#0d0f14' fontname='Tableau Medium' fontsize='14'>Where they fly</run>
+            <run>Æ&#10;</run>
+            <run fontcolor='#4a5563' fontname='Tableau Medium' fontsize='8'>Top 40 routes from home airport to destination · click a city for details</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+            <datasource name='Parameters' />
+          </datasources>
+          <mapsources>
+            <mapsource name='Tableau' />
+          </mapsources>
+          <datasource-dependencies datasource='Parameters'>
+            <column caption='Map view' datatype='string' name='[Parameter 2201557574750214]' param-domain-type='list' role='measure' type='nominal' value='&quot;North America&quot;'>
+              <calculation class='tableau' formula='&quot;North America&quot;' />
+            </column>
+          </datasource-dependencies>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Route' datatype='string' name='[Calculation_1556418989539328]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[home_city (sessions_clean.csv)] + &quot; → &quot; + [destination]' />
+            </column>
+            <column caption='Top route line' datatype='spatial' name='[Calculation_2201557567016963]' role='measure' type='nominal'>
+              <calculation class='tableau' formula='IF [Top 40 routes] THEN [Calculation_2266428583809034] END' />
+            </column>
+            <column caption='Destination point' datatype='spatial' name='[Calculation_2201557567262724]' role='measure' type='nominal'>
+              <calculation class='tableau' formula='MAKEPOINT([destination_airport_lat], [destination_airport_lon])' />
+            </column>
+            <column caption='In North America' datatype='boolean' name='[Calculation_2201557574529029]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[destination_airport_lat] &gt; 12 AND [destination_airport_lon] &gt; -170 AND [destination_airport_lon] &lt; -50' />
+            </column>
+            <column caption='Map scope' datatype='boolean' name='[Calculation_2201557575081991]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Parameters].[Parameter 2201557574750214] = &quot;World&quot; OR [Calculation_2201557574529029]' />
+            </column>
+            <column caption='Kept flight' datatype='boolean' name='[Calculation_2266428429496327]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking] AND [flight_booked]' />
+            </column>
+            <column caption='Route line' datatype='spatial' name='[Calculation_2266428583809034]' role='measure' type='nominal'>
+              <calculation class='tableau' formula='MAKELINE(MAKEPOINT([home_airport_lat], [home_airport_lon]), MAKEPOINT([destination_airport_lat], [destination_airport_lon]))' />
+            </column>
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+            <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_1556418989539328]' derivation='Attribute' name='[attr:Calculation_1556418989539328:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2201557567016963]' derivation='Collect' name='[clct:Calculation_2201557567016963:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2201557567262724]' derivation='Collect' name='[clct:Calculation_2201557567262724:nk]' pivot='key' type='nominal' />
+            <column datatype='string' name='[destination]' role='dimension' type='nominal' />
+            <column aggregation='Avg' datatype='real' name='[destination_airport_lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+            <column aggregation='Avg' datatype='real' name='[destination_airport_lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+            <column datatype='boolean' name='[flight_booked]' role='dimension' type='nominal' />
+            <column aggregation='Avg' datatype='real' name='[home_airport_lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+            <column aggregation='Avg' datatype='real' name='[home_airport_lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+            <column datatype='string' name='[home_city (sessions_clean.csv)]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
+            <column-instance column='[Calculation_1556418989539328]' derivation='None' name='[none:Calculation_1556418989539328:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2201557575081991]' derivation='None' name='[none:Calculation_2201557575081991:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2266428429496327]' derivation='None' name='[none:Calculation_2266428429496327:nk]' pivot='key' type='nominal' />
+            <column-instance column='[destination]' derivation='None' name='[none:destination:nk]' pivot='key' type='nominal' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <computed-sort column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_1556418989539328:nk]' direction='DESC' using='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2201557575081991:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2201557575081991:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]' context='true'>
+            <groupfilter function='member' level='[none:Calculation_2266428429496327:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]'>
+            <groupfilter function='level-members' level='[none:destination:nk]' />
+          </filter>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2201557575081991:nk]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Longitude (generated)]' field-type='quantitative' max='-7036534.4975617081' min='-19498999.417729266' projection='EPSG:3857' range-type='fixed' scope='cols' type='space' />
+            <encoding attr='space' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Latitude (generated)]' field-type='quantitative' max='8084743.5691089397' min='1203359.4370205877' projection='EPSG:3857' range-type='fixed' scope='rows' type='space' />
+          </style-rule>
+          <style-rule element='mark'>
+            <encoding attr='color' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' num-steps='5' palette='TravelTide blues' type='interpolated' />
+          </style-rule>
+          <style-rule element='table'>
+            <format attr='show-null-value-warning' value='false' />
+          </style-rule>
+          <style-rule element='map'>
+            <format attr='washout' value='0.0' />
+          </style-rule>
+          <style-rule element='tooltip'>
+            <format attr='background-color' value='#ffffff' />
+          </style-rule>
+        </style>
+        <panes customization-axis='layer'>
+          <pane id='1' selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <size column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]' />
+            </encodings>
+          </pane>
+          <pane generated-title='sessions_clean.csv.Top route line' id='0' selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Multipolygon' />
+            <mark-sizing mark-sizing-setting='marks-scaling-off' />
+            <encodings>
+              <color column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <size column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_1556418989539328:nk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[clct:Calculation_2201557567016963:nk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]' />
+              <tooltip column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[attr:Calculation_1556418989539328:nk]' />
+              <geometry column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[clct:Calculation_2201557567016963:nk]' />
+            </encodings>
+            <customized-tooltip>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Medium'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[attr:Calculation_1556418989539328:nk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontname='Tableau Medium'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]> flights]]></run>
+              </formatted-text>
+            </customized-tooltip>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-color' value='#0074c7' />
+                <format attr='size' value='0.69165748357772827' />
+                <format attr='mark-transparency' value='155' />
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='false' />
+              </style-rule>
+            </style>
+          </pane>
+          <pane generated-title='sessions_clean.csv.Destination point' id='2' selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Circle' />
+            <mark-sizing mark-sizing-setting='marks-scaling-off' />
+            <encodings>
+              <size column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[clct:Calculation_2201557567262724:nk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]' />
+            </encodings>
+            <customized-tooltip>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Medium'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:destination:nk]>]]></run>
+                <run>Æ&#10;</run>
+                <run bold='true' fontname='Tableau Medium'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]> flights]]></run>
+                <run>Æ&#10;</run>
+              </formatted-text>
+            </customized-tooltip>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-color' value='#1b4f8a' />
+                <format attr='size' value='0.69165748357772827' />
+                <format attr='mark-transparency' value='193' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Latitude (generated)]</rows>
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Longitude (generated)]</cols>
+      </table>
+      <simple-id uuid='{6F250897-7CBF-424B-BB00-A16CBBADFEAC}' />
+    </worksheet>
+    <worksheet name='Package share'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontalignment='1' fontname='Tableau Medium' fontsize='16'>Package share</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Package share' datatype='real' name='[Calculation_2266428429856776]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM(IIF([valid_booking] AND [booking_type] = &quot;flight + hotel&quot;, 1, 0)) / SUM(IIF([valid_booking], 1, 0))' />
+            </column>
+            <column datatype='string' name='[booking_type]' role='dimension' type='nominal' />
+            <column-instance column='[Calculation_2266428429856776]' derivation='User' name='[usr:Calculation_2266428429856776:qk]' pivot='key' type='quantitative' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428429856776:qk]' value='p0.0%' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428429856776:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run fontcolor='#555555' fontname='Tableau Medium'>Flight &amp; Hotel Packages</run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#0074c7' fontname='Tableau Medium' fontsize='11'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428429856776:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#333333' fontname='Tableau Medium'>of all trips</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='vertical-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{B6D656A4-C18D-4C47-9B61-0F26F5FCD269}' />
+    </worksheet>
+    <worksheet name='Routes'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontcolor='#0d0f14' fontname='Tableau Medium' fontsize='14'>Where they fly</run>
+            <run>Æ&#10;</run>
+            <run fontcolor='#4a5563' fontname='Tableau Medium' fontsize='8'>Top 40 routes from home airport to destination · click a city for details</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <mapsources>
+            <mapsource name='Tableau' />
+          </mapsources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Route' datatype='string' name='[Calculation_1556418989539328]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[home_city (sessions_clean.csv)] + &quot; → &quot; + [destination]' />
+            </column>
+            <column caption='Kept flight' datatype='boolean' name='[Calculation_2266428429496327]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking] AND [flight_booked]' />
+            </column>
+            <column caption='Route line' datatype='spatial' name='[Calculation_2266428583809034]' role='measure' type='nominal'>
+              <calculation class='tableau' formula='MAKELINE(MAKEPOINT([home_airport_lat], [home_airport_lon]), MAKEPOINT([destination_airport_lat], [destination_airport_lon]))' />
+            </column>
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+            <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_1556418989539328]' derivation='Attribute' name='[attr:Calculation_1556418989539328:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2266428583809034]' derivation='Collect' name='[clct:Calculation_2266428583809034:nk]' pivot='key' type='nominal' />
+            <column datatype='string' name='[destination]' role='dimension' type='nominal' />
+            <column aggregation='Avg' datatype='real' name='[destination_airport_lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+            <column aggregation='Avg' datatype='real' name='[destination_airport_lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+            <column datatype='boolean' name='[flight_booked]' role='dimension' type='nominal' />
+            <column aggregation='Avg' datatype='real' name='[home_airport_lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+            <column aggregation='Avg' datatype='real' name='[home_airport_lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+            <column datatype='string' name='[home_city (sessions_clean.csv)]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
+            <column-instance column='[Calculation_1556418989539328]' derivation='None' name='[none:Calculation_1556418989539328:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2266428429496327]' derivation='None' name='[none:Calculation_2266428429496327:nk]' pivot='key' type='nominal' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_1556418989539328:nk]'>
+            <groupfilter count='40' end='top' function='end' units='records' user:ui-marker='end' user:ui-top-by-field='true'>
+              <groupfilter direction='DESC' expression='COUNT([__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8])' function='order' user:ui-marker='order'>
+                <groupfilter function='level-members' level='[none:Calculation_1556418989539328:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+              </groupfilter>
+            </groupfilter>
+          </filter>
+          <computed-sort column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_1556418989539328:nk]' direction='DESC' using='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]' context='true'>
+            <groupfilter function='member' level='[none:Calculation_2266428429496327:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428429496327:nk]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_1556418989539328:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Longitude (generated)]' field-type='quantitative' max='-7162354.0160166398' min='-14638320.361229159' projection='EPSG:3857' range-type='fixed' scope='cols' type='space' />
+            <encoding attr='space' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Latitude (generated)]' field-type='quantitative' max='7742736.0143541209' min='2431556.9759970512' projection='EPSG:3857' range-type='fixed' scope='rows' type='space' />
+          </style-rule>
+          <style-rule element='mark'>
+            <encoding attr='color' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' num-steps='5' palette='TravelTide blues' type='interpolated' />
+          </style-rule>
+          <style-rule element='map'>
+            <format attr='washout' value='0.0' />
+          </style-rule>
+          <style-rule element='tooltip'>
+            <format attr='background-color' value='#ffffff' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Multipolygon' />
+            <mark-sizing mark-sizing-setting='marks-scaling-off' />
+            <encodings>
+              <color column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <size column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[clct:Calculation_2266428583809034:nk]' />
+              <lod column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_1556418989539328:nk]' />
+              <tooltip column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[attr:Calculation_1556418989539328:nk]' />
+              <geometry column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[clct:Calculation_2266428583809034:nk]' />
+            </encodings>
+            <customized-tooltip>
+              <formatted-text>
+                <run bold='true' fontname='Tableau Medium'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[attr:Calculation_1556418989539328:nk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontname='Tableau Medium'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]> flights]]></run>
+              </formatted-text>
+            </customized-tooltip>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-color' value='#0074c7' />
+                <format attr='size' value='0.0099999997764825821' />
+                <format attr='mark-transparency' value='155' />
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='false' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Latitude (generated)]</rows>
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[Longitude (generated)]</cols>
+      </table>
+      <simple-id uuid='{BCE35972-D672-4E46-B8B9-EABB1180CA07}' />
+    </worksheet>
+    <worksheet name='Sessions'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontalignment='1' fontname='Tableau Medium' fontsize='16'>Sessions</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Sessions' datatype='integer' name='[Calculation_2266428426076163]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([session_count])' />
+            </column>
+            <column datatype='integer' name='[session_count]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_2266428426076163]' derivation='User' name='[usr:Calculation_2266428426076163:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426076163:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run fontcolor='#555555' fontname='Tableau Medium'>Sessions</run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#0074c7' fontname='Tableau Medium' fontsize='11'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426076163:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#555555' fontname='Tableau Medium'>8.2 per customer ·  Ø  3.1 min</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='vertical-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{0CF997AE-6588-4113-975F-F0C5D1F4D2E2}' />
+    </worksheet>
+    <worksheet name='Total spend'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontalignment='1' fontname='Tableau Medium' fontsize='16'>Total spend</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Total spend' datatype='real' name='[Calculation_2266428426543108]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([total_spend_usd])' />
+            </column>
+            <column datatype='real' name='[total_spend_usd]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_2266428426543108]' derivation='User' name='[usr:Calculation_2266428426543108:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='cell'>
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426543108:qk]' value='c&quot;$&quot;#,##0,,.00M;(&quot;$&quot;#,##0,,.00M)' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426543108:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run fontcolor='#555555' fontname='Tableau Medium'>Total spend</run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#0074c7' fontname='Tableau Medium' fontsize='11'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428426543108:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#555555' fontname='Tableau Medium'>flights + hotels, after discounts</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='vertical-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{709EA918-3937-405B-9B95-403192232F84}' />
+    </worksheet>
+    <worksheet name='Trips'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontalignment='1' fontname='Tableau Medium' fontsize='16'>Trips</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Trips' datatype='integer' name='[Calculation_2266428425768962]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='SUM([valid_trips])' />
+            </column>
+            <column-instance column='[Calculation_2266428425768962]' derivation='User' name='[usr:Calculation_2266428425768962:qk]' pivot='key' type='quantitative' />
+            <column datatype='integer' name='[valid_trips]' role='measure' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425768962:qk]' />
+            </encodings>
+            <customized-label>
+              <formatted-text>
+                <run fontcolor='#555555' fontname='Tableau Medium'>Trips (not canceled)</run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#0074c7' fontname='Tableau Medium' fontsize='11'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425768962:qk]>]]></run>
+                <run>Æ&#10;</run>
+                <run fontcolor='#555555' fontname='Tableau Medium'>2.6 per customer</run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='cell'>
+                <format attr='text-align' value='center' />
+                <format attr='vertical-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{AF58F90C-8F5A-4DB8-96D9-1904DC49C495}' />
+    </worksheet>
+    <worksheet name='What they book'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='14'>What they book</run>
+            <run>Æ&#10;</run>
+            <run fontsize='8'>Share</run>
+            <run bold='true' fontsize='8'>Æ </run>
+            <run fontsize='8'>of trips by booking type</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Kept trip' datatype='boolean' name='[Calculation_2266428427128838]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking]' />
+            </column>
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[pcto:cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative'>
+              <table-calc ordering-type='Columns' type='PctTotal' />
+            </column-instance>
+            <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
+            <column datatype='string' name='[booking_type]' role='dimension' type='nominal' />
+            <column-instance column='[booking_type]' derivation='Count' name='[cnt:booking_type:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_2266428427128838]' derivation='None' name='[none:Calculation_2266428427128838:nk]' pivot='key' type='nominal' />
+            <column-instance column='[booking_type]' derivation='None' name='[none:booking_type:nk]' pivot='key' type='nominal' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428427128838:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2266428427128838:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <computed-sort column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:booking_type:nk]' direction='DESC' using='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[cnt:booking_type:qk]' />
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428427128838:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='display' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[pcto:cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' scope='cols' value='false' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='height' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:booking_type:nk]' value='47' />
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[pcto:cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' value='p0.0%' />
+          </style-rule>
+          <style-rule element='header'>
+            <format attr='width' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:booking_type:nk]' value='120' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='display-field-labels' scope='rows' value='false' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='cols' value='0' />
+            <format attr='line-visibility' scope='cols' value='off' />
+          </style-rule>
+          <style-rule element='legend-title-text'>
+            <format attr='color' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:booking_type:nk]' value='Share of trips by booking type'>
+              <formatted-text>
+                <run>Share of trips by booking type</run>
+              </formatted-text>
+            </format>
+          </style-rule>
+          <style-rule element='tooltip'>
+            <format attr='background-color' value='#ffffff' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <color column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:booking_type:nk]' />
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+              <text column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[pcto:cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' />
+            </encodings>
+            <customized-tooltip>
+              <formatted-text />
+            </customized-tooltip>
+            <customized-label>
+              <formatted-text>
+                <run bold='true'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]> ]]></run>
+                <run bold='true' fontname='Tableau Medium'> ·  </run>
+                <run bold='true'><![CDATA[<[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[pcto:cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]>]]></run>
+              </formatted-text>
+            </customized-label>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-mode' value='all' />
+                <format attr='mark-labels-cull' value='false' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minheight' value='-1' />
+                <format attr='maxheight' value='-1' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:booking_type:nk]</rows>
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[pcto:cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]</cols>
+      </table>
+      <simple-id uuid='{8486AE8D-E53B-4BDC-B85C-3B9D6F70A79A}' />
+    </worksheet>
+    <worksheet name='When trips start'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run bold='true' fontsize='14'>When trips start</run>
+            <run>Æ&#10;</run>
+            <run fontsize='8'>Trips by start month · 15,489 trips       (Data ends Jul 28, 2023 · 224 trips (1.4 %) start later.)</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Kept trip' datatype='boolean' name='[Calculation_2266428427128838]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[valid_booking]' />
+            </column>
+            <column-instance column='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' derivation='Count' name='[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' pivot='key' type='quantitative' />
+            <column caption='sessions_clean.csv' datatype='table' name='[__tableau_internal_object_id__].[sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8]' role='measure' type='quantitative' />
+            <column-instance column='[Calculation_2266428427128838]' derivation='None' name='[none:Calculation_2266428427128838:nk]' pivot='key' type='nominal' />
+            <column-instance column='[trip_start]' derivation='None' name='[none:trip_start:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[trip_start]' derivation='Month-Trunc' name='[tmn:trip_start:ok]' pivot='key' type='ordinal' />
+            <column datatype='datetime' name='[trip_start]' role='dimension' type='ordinal' />
+            <column datatype='boolean' name='[valid_booking]' role='dimension' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428427128838:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2266428427128838:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='quantitative' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:trip_start:qk]' included-values='in-range'>
+            <min>#2023-01-01 00:00:00#</min>
+            <max>#2023-08-01 00:00:00#</max>
+          </filter>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:Calculation_2266428427128838:nk]</column>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:trip_start:qk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='title' class='0' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' scope='rows' value='Trips' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='width' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[tmn:trip_start:ok]' value='91' />
+          </style-rule>
+          <style-rule element='label'>
+            <format attr='text-format' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[tmn:trip_start:ok]' value='*MMM' />
+          </style-rule>
+          <style-rule element='pane'>
+            <format attr='border-width' data-class='total' scope='rows' value='0' />
+            <format attr='border-style' data-class='total' scope='rows' value='none' />
+          </style-rule>
+          <style-rule element='worksheet'>
+            <format attr='display-field-labels' scope='cols' value='false' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+          <style-rule element='tooltip'>
+            <format attr='background-color' value='#ffffff' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Bar' />
+            <customized-tooltip>
+              <formatted-text>
+                <run>&lt;</run>
+                <run>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[tmn:trip_start:qk]</run>
+                <run>&gt;&#10;&lt;</run>
+                <run>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]</run>
+                <run>&gt; trips</run>
+              </formatted-text>
+            </customized-tooltip>
+            <style>
+              <style-rule element='cell'>
+                <format attr='vertical-align' value='top' />
+                <format attr='text-align' value='center' />
+              </style-rule>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-color' value='#008aec' />
+                <format attr='mark-transparency' value='206' />
+              </style-rule>
+              <style-rule element='pane'>
+                <format attr='minwidth' value='637' />
+                <format attr='maxwidth' value='637' />
+                <format attr='minheight' value='621' />
+                <format attr='maxheight' value='621' />
+                <format attr='aspect' value='0' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]</rows>
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[tmn:trip_start:ok]</cols>
+      </table>
+      <simple-id uuid='{7407C388-B4E9-4A6F-A9D0-36CE01F09A2B}' />
+    </worksheet>
+    <worksheet name='Where they live'>
+      <layout-options>
+        <title>
+          <formatted-text>
+            <run fontname='Tableau Medium' fontsize='14'>Where they live</run>
+            <run>Æ&#10;</run>
+            <run fontsize='8'>Customers by home city · USA 4,991 · Canada 1,007</run>
+            <run>Æ&#10;&#10;</run>
+          </formatted-text>
+        </title>
+      </layout-options>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='users_segments+' name='federated.09q4qmo08x3eu5167tb3x1mpbxnr' />
+          </datasources>
+          <datasource-dependencies datasource='federated.09q4qmo08x3eu5167tb3x1mpbxnr'>
+            <column caption='Customers' datatype='integer' name='[Calculation_2266428425261057]' role='measure' type='quantitative'>
+              <calculation class='tableau' formula='COUNTD([user_id])' />
+            </column>
+            <column datatype='string' name='[home_city]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
+            <column-instance column='[home_city]' derivation='None' name='[none:home_city:nk]' pivot='key' type='nominal' />
+            <column aggregation='Sum' datatype='integer' name='[user_id]' role='dimension' type='ordinal' />
+            <column-instance column='[Calculation_2266428425261057]' derivation='User' name='[usr:Calculation_2266428425261057:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city:nk]'>
+            <groupfilter count='6' end='top' function='end' units='records' user:ui-marker='end' user:ui-top-by-field='true'>
+              <groupfilter direction='DESC' expression='[Calculation_2266428425261057]' function='order' user:ui-marker='order'>
+                <groupfilter function='level-members' level='[none:home_city:nk]' user:ui-enumeration='all' user:ui-marker='enumerate' />
+              </groupfilter>
+            </groupfilter>
+          </filter>
+          <shelf-sorts>
+            <shelf-sort-v2 dimension-to-sort='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city:nk]' direction='DESC' is-on-innermost-dimension='true' measure-to-sort-by='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425261057:qk]' shelf='rows' />
+          </shelf-sorts>
+          <slices>
+            <column>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+          <style-rule element='cell'>
+            <format attr='height' field='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city:nk]' value='33' />
+          </style-rule>
+          <style-rule element='dropline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+          <style-rule element='gridline'>
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='stroke-size' scope='cols' value='0' />
+            <format attr='line-visibility' scope='cols' value='off' />
+          </style-rule>
+          <style-rule element='zeroline'>
+            <format attr='line-pattern-only' scope='rows' value='solid' />
+            <format attr='stroke-size' scope='rows' value='0' />
+            <format attr='line-visibility' scope='rows' value='off' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-color' value='#008aec' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[none:home_city:nk]</rows>
+        <cols>[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425261057:qk]</cols>
+      </table>
+      <simple-id uuid='{3E3D44AF-A2C8-4268-A04B-0BE082C13C1F}' />
     </worksheet>
   </worksheets>
-  <windows source-height='53'>
-    <window class='worksheet' maximized='true' name='Sheet 1'>
+  <dashboards>
+    <dashboard enable-sort-zone-taborder='true' name='Dashboard 1'>
+      <style />
+      <size maxheight='1100' maxwidth='1500' minheight='1100' minwidth='1500' sizing-mode='fixed' />
+      <datasources>
+        <datasource name='Parameters' />
+      </datasources>
+      <datasource-dependencies datasource='Parameters'>
+        <column caption='Map view' datatype='string' name='[Parameter 2201557574750214]' param-domain-type='list' role='measure' type='nominal' value='&quot;North America&quot;'>
+          <calculation class='tableau' formula='&quot;North America&quot;' />
+          <members>
+            <member value='&quot;North America&quot;' />
+            <member value='&quot;World&quot;' />
+          </members>
+        </column>
+      </datasource-dependencies>
+      <zones>
+        <zone h='100000' id='4' type-v2='layout-basic' w='100000' x='0' y='0'>
+          <zone forceUpdate='true' h='7091' id='5' type-v2='text' w='87114' x='12353' y='727'>
+            <formatted-text>
+              <run bold='true' fontalignment='1' fontcolor='#0d0f14' fontname='Tableau Medium' fontsize='18'>Who our customers are and where they go</run>
+              <run fontalignment='1'>Æ&#10;</run>
+              <run fontalignment='1' fontcolor='#4a5563' fontname='Tableau Light'>5,998 customers with more than 7 sessions since Jan 4, 2023 · trips = bookings that were not canceled</run>
+            </formatted-text>
+            <zone-style>
+              <format attr='border-color' value='#444444' />
+              <format attr='border-style' value='none' />
+              <format attr='border-width' value='0' />
+              <format attr='margin' value='4' />
+            </zone-style>
+          </zone>
+          <zone h='8727' id='19' layout-strategy-id='distribute-evenly' param='horz' type-v2='layout-flow' w='98934' x='533' y='7818'>
+            <zone fixed-size='182' h='8727' id='7' is-fixed='true' name='Customers' show-title='false' w='16534' x='533' y='7818'>
+              <layout-cache fixed-size-h='115' type-h='fixed' type-w='fixed' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+            <zone fixed-size='172' h='8727' id='8' is-fixed='true' name='Sessions' show-title='false' w='16533' x='17067' y='7818'>
+              <layout-cache type-h='fixed' type-w='fixed' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+            <zone h='8727' id='9' name='Trips' show-title='false' w='16467' x='33600' y='7818'>
+              <layout-cache fixed-size-w='201' type-h='fixed' type-w='fixed' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+            <zone h='8727' id='10' name='Total spend' show-title='false' w='16466' x='50067' y='7818'>
+              <layout-cache fixed-size-w='301' type-h='fixed' type-w='fixed' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+            <zone h='8727' id='11' name='Avg spend per trip' show-title='false' w='16467' x='66533' y='7818'>
+              <layout-cache fixed-size-w='201' type-h='fixed' type-w='fixed' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+            <zone h='8727' id='12' name='Package share' show-title='false' w='16467' x='83000' y='7818'>
+              <layout-cache fixed-size-h='115' fixed-size-w='241' type-h='fixed' type-w='fixed' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+          </zone>
+          <zone h='7091' id='24' is-scaled='1' param='Image/traveltide_logo_wordmark.png' type-v2='bitmap' w='11820' x='533' y='727'>
+            <zone-style>
+              <format attr='border-color' value='#444444' />
+              <format attr='border-style' value='none' />
+              <format attr='border-width' value='0' />
+              <format attr='margin' value='4' />
+            </zone-style>
+          </zone>
+          <zone h='32554' id='25' param='horz' type-v2='layout-flow' w='32976' x='533' y='66719'>
+            <zone h='32554' id='27' name='When trips start' w='32976' x='533' y='66719'>
+              <layout-cache cell-count-w='7' has-max-size-h='true' maxheight='729' minheight='729' non-cell-size-w='77' type-h='scalable' type-w='cell' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+          </zone>
+          <zone h='32554' id='26' param='horz' type-v2='layout-flow' w='32979' x='66488' y='66719'>
+            <zone h='32554' id='29' name='Where they live' w='32979' x='66488' y='66719'>
+              <layout-cache minwidth='200' type-h='fixed' type-w='scalable' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+          </zone>
+          <zone h='32554' id='28' name='What they book' w='32979' x='33509' y='66719'>
+            <zone-style>
+              <format attr='border-color' value='#444444' />
+              <format attr='border-style' value='none' />
+              <format attr='border-width' value='0' />
+              <format attr='margin' value='4' />
+            </zone-style>
+          </zone>
+          <zone h='43628' id='36' param='horz' type-v2='layout-flow' w='98934' x='533' y='23091'>
+            <zone fixed-size='688' h='43628' id='37' is-fixed='true' name='Map' w='46400' x='533' y='23091'>
+              <layout-cache has-max-size-h='true' maxheight='66' minheight='66' minwidth='202' type-h='scalable' type-w='scalable' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='4' />
+              </zone-style>
+            </zone>
+            <zone h='43628' id='41' param='horz' type-v2='layout-flow' w='52534' x='46933' y='23091'>
+              <zone h='43628' id='42' param='vert' type-v2='layout-flow' w='52534' x='46933' y='23091'>
+                <zone forceUpdate='true' h='2636' id='40' type-v2='text' w='52534' x='46933' y='23091'>
+                  <formatted-text>
+                    <run fontcolor='#333333' fontname='Tableau Medium'>DESTINATION · CLICK A CITY</run>
+                  </formatted-text>
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='32' h='3636' id='46' is-fixed='true' name='City name' show-title='false' w='52534' x='46933' y='25727'>
+                  <layout-cache cell-count-w='1' type-h='cell' type-w='cell' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='62' h='6363' id='45' is-fixed='true' name='City KPIs' show-title='false' w='52534' x='46933' y='29363'>
+                  <layout-cache cell-count-w='3' type-h='cell' type-w='cell' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='254' h='23818' id='43' is-fixed='true' name='Flights come from' w='52534' x='46933' y='35726'>
+                  <layout-cache minwidth='200' type-h='fixed' type-w='scalable' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                  </zone-style>
+                </zone>
+              </zone>
+            </zone>
+          </zone>
+          <zone fixed-size='74' h='6546' id='33' is-fixed='true' mode='list' param='[Parameters].[Parameter 2201557574750214]' show-title='false' type-v2='paramctrl' w='98934' x='533' y='16545'>
+            <zone-style>
+              <format attr='border-color' value='#444444' />
+              <format attr='border-style' value='none' />
+              <format attr='border-width' value='0' />
+              <format attr='margin' value='4' />
+            </zone-style>
+          </zone>
+          <zone-style>
+            <format attr='border-color' value='#444444' />
+            <format attr='border-style' value='none' />
+            <format attr='border-width' value='0' />
+            <format attr='margin' value='8' />
+          </zone-style>
+        </zone>
+      </zones>
+      <devicelayouts>
+        <devicelayout auto-generated='true' name='Phone'>
+          <size maxheight='2600' minheight='2600' sizing-mode='vscroll' />
+          <zones>
+            <zone h='100000' id='52' type-v2='layout-basic' w='100000' x='0' y='0'>
+              <zone h='98546' id='51' param='vert' type-v2='layout-flow' w='98934' x='533' y='727'>
+                <zone fixed-size='55' h='5683' id='24' is-fixed='true' is-scaled='1' param='Image/traveltide_logo_wordmark.png' type-v2='bitmap' w='11820' x='533' y='727'>
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone forceUpdate='true' h='5683' id='5' type-v2='text' w='87114' x='12353' y='727'>
+                  <formatted-text>
+                    <run bold='true' fontalignment='1' fontcolor='#0d0f14' fontname='Tableau Medium' fontsize='18'>Who our customers are and where they go</run>
+                    <run fontalignment='1'>Æ&#10;</run>
+                    <run fontalignment='1' fontcolor='#4a5563' fontname='Tableau Light'>5,998 customers with more than 7 sessions since Jan 4, 2023 · trips = bookings that were not canceled</run>
+                  </formatted-text>
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='103' h='10090' id='7' is-fixed='true' name='Customers' show-title='false' w='16534' x='533' y='6455'>
+                  <layout-cache fixed-size-h='115' type-h='fixed' type-w='fixed' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='103' h='10090' id='8' is-fixed='true' name='Sessions' show-title='false' w='16533' x='17067' y='6455'>
+                  <layout-cache type-h='fixed' type-w='fixed' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='103' h='10090' id='9' is-fixed='true' name='Trips' show-title='false' w='16467' x='33600' y='6455'>
+                  <layout-cache fixed-size-w='201' type-h='fixed' type-w='fixed' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='103' h='10090' id='10' is-fixed='true' name='Total spend' show-title='false' w='16466' x='50067' y='6455'>
+                  <layout-cache fixed-size-w='301' type-h='fixed' type-w='fixed' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='103' h='10090' id='11' is-fixed='true' name='Avg spend per trip' show-title='false' w='16467' x='66533' y='6455'>
+                  <layout-cache fixed-size-w='201' type-h='fixed' type-w='fixed' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='103' h='10090' id='12' is-fixed='true' name='Package share' show-title='false' w='16467' x='83000' y='6455'>
+                  <layout-cache fixed-size-h='115' fixed-size-w='241' type-h='fixed' type-w='fixed' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='74' h='4441' id='33' mode='list' param='[Parameters].[Parameter 2201557574750214]' show-title='false' type-v2='paramctrl' w='98934' x='533' y='16545'>
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='45733' id='37' is-fixed='true' name='Map' w='46400' x='533' y='20986'>
+                  <layout-cache has-max-size-h='true' maxheight='66' minheight='66' minwidth='202' type-h='scalable' type-w='scalable' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone forceUpdate='true' h='3000' id='40' type-v2='text' w='52534' x='46933' y='20986'>
+                  <formatted-text>
+                    <run fontcolor='#333333' fontname='Tableau Medium'>DESTINATION · CLICK A CITY</run>
+                  </formatted-text>
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='96' h='9461' id='46' is-fixed='true' name='City name' show-title='false' w='52534' x='46933' y='23986'>
+                  <layout-cache cell-count-h='1' type-h='cell' type-w='cell' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='96' h='9454' id='45' is-fixed='true' name='City KPIs' show-title='false' w='52534' x='46933' y='33447'>
+                  <layout-cache type-h='cell' type-w='cell' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='254' h='23818' id='43' is-fixed='true' name='Flights come from' w='52534' x='46933' y='42901'>
+                  <layout-cache minwidth='200' type-h='fixed' type-w='scalable' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='32554' id='27' is-fixed='true' name='When trips start' w='32976' x='533' y='66719'>
+                  <layout-cache cell-count-w='7' has-max-size-h='true' maxheight='729' minheight='729' non-cell-size-w='77' type-h='scalable' type-w='cell' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='32554' id='28' is-fixed='true' name='What they book' w='32979' x='33509' y='66719'>
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+                <zone fixed-size='280' h='32554' id='29' is-fixed='true' name='Where they live' w='32979' x='66488' y='66719'>
+                  <layout-cache minwidth='200' type-h='fixed' type-w='scalable' />
+                  <zone-style>
+                    <format attr='border-color' value='#444444' />
+                    <format attr='border-style' value='none' />
+                    <format attr='border-width' value='0' />
+                    <format attr='margin' value='4' />
+                    <format attr='padding' value='0' />
+                  </zone-style>
+                </zone>
+              </zone>
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='8' />
+              </zone-style>
+            </zone>
+          </zones>
+        </devicelayout>
+      </devicelayouts>
+      <simple-id uuid='{C600847A-EED0-496A-995A-5B4B25941005}' />
+    </dashboard>
+    <dashboard enable-sort-zone-taborder='true' name='Dashboard 2'>
+      <style />
+      <size maxheight='860' maxwidth='650' minheight='560' minwidth='420' />
+      <zones />
+      <devicelayouts>
+        <devicelayout auto-generated='true' name='Phone'>
+          <size maxheight='700' minheight='700' sizing-mode='vscroll' />
+          <zones>
+            <zone h='100000' id='10' type-v2='layout-basic' w='100000' x='0' y='0'>
+              <zone h='98140' id='9' param='vert' type-v2='layout-flow' w='97538' x='1231' y='930' />
+              <zone-style>
+                <format attr='border-color' value='#444444' />
+                <format attr='border-style' value='none' />
+                <format attr='border-width' value='0' />
+                <format attr='margin' value='8' />
+              </zone-style>
+            </zone>
+          </zones>
+        </devicelayout>
+      </devicelayouts>
+      <simple-id uuid='{F92EAE27-2E3B-4911-8B53-8264BD024454}' />
+    </dashboard>
+  </dashboards>
+  <windows pres-mode='true' source-height='53'>
+    <window class='worksheet' name='Checks'>
+      <cards>
+        <edge name='left'>
+          <strip size='268'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card type='measures' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card param='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[usr:Calculation_2266428425768962:qk]' show-domain='false' show-null-ctrls='false' type='filter' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{D4364FF2-BAEF-4A63-BF59-B2F84DA2859A}' />
+    </window>
+    <window class='worksheet' name='Customers'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{72A80F50-D334-4014-944D-DBCB8FC32BC4}' />
+    </window>
+    <window class='worksheet' name='Sessions'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{FBDE68B8-0463-433F-B4D3-0C9638972DF0}' />
+    </window>
+    <window class='worksheet' name='Trips'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{73EFAB06-CF4F-45D1-8666-DE10D9697417}' />
+    </window>
+    <window class='worksheet' name='Total spend'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{3894C202-6799-44C7-BE16-4522D8BC38D3}' />
+    </window>
+    <window class='worksheet' name='Avg spend per trip'>
+      <cards>
+        <edge name='left'>
+          <strip size='289'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{54B314D0-498B-4E81-897E-F7F604FB58FE}' />
+    </window>
+    <window class='worksheet' name='Package share'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{B3B4D09C-078C-450D-89F1-8D9C5D088227}' />
+    </window>
+    <window class='worksheet' name='Destinations'>
+      <cards>
+        <edge name='left'>
+          <strip size='296'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{3C7167D7-C0D2-4122-BA00-9AB5B96893DB}' />
+    </window>
+    <window class='worksheet' name='Routes'>
+      <cards>
+        <edge name='left'>
+          <strip size='287'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='0' param='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' type='size' />
+            <card pane-specification-id='0' param='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' type='color' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{BAD01443-106F-4092-B8D8-29D47E816355}' />
+    </window>
+    <window class='worksheet' name='Map'>
+      <cards>
+        <edge name='left'>
+          <strip size='202'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card pane-specification-id='2' param='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' type='size' />
+            <card pane-specification-id='0' param='[federated.09q4qmo08x3eu5167tb3x1mpbxnr].[__tableau_internal_object_id__].[cnt:sessions_clean.csv_CD022F4365054369AE039A89FA81EAD8:qk]' type='color' />
+            <card mode='list' param='[Parameters].[Parameter 2201557574750214]' type='parameter' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{29997BD4-3A9D-4B64-9B54-A73FC7670B7A}' />
+    </window>
+    <window class='worksheet' name='City name'>
+      <cards>
+        <edge name='left'>
+          <strip size='300'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <zoom type='entire-view' />
+      </viewpoint>
+      <simple-id uuid='{506A4827-6637-4428-98B5-E50699E2FB7F}' />
+    </window>
+    <window class='worksheet' name='City KPIs'>
+      <cards>
+        <edge name='left'>
+          <strip size='300'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+            <card type='measures' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{39E3C9D4-4DFD-419D-8551-92C7D8CC6A1F}' />
+    </window>
+    <window class='worksheet' name='Flights come from'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card size='35' type='pages' />
+            <card size='76' type='filters' />
+            <card size='198' type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{A106F8E6-38BC-48DB-8A6F-ACABC18B4266}' />
+    </window>
+    <window class='dashboard' maximized='true' name='Dashboard 1'>
+      <viewpoints>
+        <viewpoint name='Avg spend per trip'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='City KPIs'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='City name'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Customers'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Flights come from' />
+        <viewpoint name='Map'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Package share'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Sessions'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Total spend'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Trips'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='What they book'>
+          <zoom type='fit-width' />
+        </viewpoint>
+        <viewpoint name='When trips start'>
+          <zoom type='entire-view' />
+        </viewpoint>
+        <viewpoint name='Where they live'>
+          <zoom type='fit-height' />
+        </viewpoint>
+      </viewpoints>
+      <active id='37' />
+      <simple-id uuid='{18FC3B89-369B-4967-B024-BAEE89CCEF3F}' />
+    </window>
+    <window class='worksheet' name='When trips start'>
       <cards>
         <edge name='left'>
           <strip size='160'>
@@ -3655,7 +5973,81 @@
           </strip>
         </edge>
       </cards>
-      <simple-id uuid='{D4364FF2-BAEF-4A63-BF59-B2F84DA2859A}' />
+      <simple-id uuid='{54470D06-0E50-4F9E-86F2-2611AE7D6A73}' />
+    </window>
+    <window class='worksheet' name='What they book'>
+      <cards>
+        <edge name='left'>
+          <strip size='215'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{EE856BC7-8FCB-496D-8A72-B41E793930D9}' />
+    </window>
+    <window class='worksheet' name='Where they live'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{C529F628-E2A0-4421-B16F-8B58806CCD91}' />
+    </window>
+    <window class='worksheet' name='Destination details'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{114EA3B2-A8B0-4434-8CCC-C4A9E139CDAA}' />
+    </window>
+    <window class='dashboard' name='Dashboard 2'>
+      <viewpoints />
+      <active id='-1' />
+      <simple-id uuid='{A9D3B35F-1B82-4D63-A0A6-7028125DF714}' />
     </window>
   </windows>
 </workbook>
