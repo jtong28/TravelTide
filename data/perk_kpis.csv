@@ -1,0 +1,19 @@
+perk,tile,label,value
+No cancellation fees,1,KPI to watch,Dreamers who keep a first booking · cancellation rate
+No cancellation fees,2,Today · Dreamers with a kept trip,0 of 556
+No cancellation fees,3,Today · Booked trips canceled,3.8 %
+1 night free hotel with flight,1,KPI to watch,Trips per customer · share of packages
+1 night free hotel with flight,2,Today · Trips per Package Traveler,3.6
+1 night free hotel with flight,3,"Today · Packages, all customers",75 %
+Free hotel meal,1,KPI to watch,Hotel bookings per customer · nights per stay
+Free hotel meal,2,Today · Trips per Hotel Stayer,2.0
+Free hotel meal,3,"Today · Nights per stay, Hotel Stayers",6
+Extra-legroom seat (new),1,KPI to watch,Flights per customer
+Extra-legroom seat (new),2,Today · Trips per Long-haul Traveler,2.3
+Extra-legroom seat (new),3,Today · Median distance,"3,517 km"
+Exclusive discounts,1,KPI to watch,"Booking rate, perk vs no perk"
+Exclusive discounts,2,Today · Sessions ending in a booking,33.1 %
+Exclusive discounts,3,Today · Discounts vs booking rate,r = −0.02
+Free checked bag,1,KPI to watch,"Trips per customer, perk vs no perk"
+Free checked bag,2,Today · Trips per customer in this group,2.7
+Free checked bag,3,Today · Avg spend per trip,$856

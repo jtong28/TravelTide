@@ -1,0 +1,37 @@
+segment,tile_row,tile_col,fact,value
+Dreamers,1,1,Trips kept,0
+Dreamers,1,2,Sessions,8
+Dreamers,2,1,Canceled trips,0
+Dreamers,2,2,Status,browsing only
+Family Crew,1,1,Trips,2
+Family Crew,1,2,Party size,1.5
+Family Crew,2,1,Nights per stay,3
+"Family Crew,2,2,Distance,""1,968 km"""
+Couples & Friends,1,1,Trips,3
+Couples & Friends,1,2,Party size,1.5
+Couples & Friends,2,1,Nights per stay,3
+Couples & Friends,2,2,Discounted,33 %
+Hotel Stayers,1,1,Trips,2
+Hotel Stayers,1,2,Hotel-only,50 %
+Hotel Stayers,2,1,Nights per stay,6
+Hotel Stayers,2,2,Party size,1
+Favorite-City Returners,1,1,Trips,4
+Favorite-City Returners,1,2,Same city,2×
+Favorite-City Returners,2,1,Nights per stay,3
+Favorite-City Returners,2,2,Discounted,25 %
+Deal Hunters,1,1,Trips,3
+Deal Hunters,1,2,Discounted,67 %
+Deal Hunters,2,1,Nights per stay,3.3
+"Deal Hunters,2,2,Distance,""2,082 km"""
+Long-haul Travelers,1,1,Trips,2
+"Long-haul Travelers,1,2,Distance,""3,729 km"""
+Long-haul Travelers,2,1,Nights per stay,3.5
+Long-haul Travelers,2,2,Party size,1
+Package Travelers,1,1,Trips,3
+Package Travelers,1,2,Packages,100 %
+Package Travelers,2,1,Nights per stay,3.3
+"Package Travelers,2,2,Distance,""1,843 km"""
+All-rounders,1,1,Trips,2
+All-rounders,1,2,Nights per stay,3.5
+"All-rounders,2,1,Distance,""1,778 km"""
+All-rounders,2,2,Discounted,0 %

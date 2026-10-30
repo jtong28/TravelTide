@@ -1,0 +1,5 @@
+question,kind,customers,sort
+Customers who never book,Real,458,1
+Customers who never book,By chance,236,2
+Customers who book in at least half of their sessions,Real,1598,1
+Customers who book in at least half of their sessions,By chance,1382,2
