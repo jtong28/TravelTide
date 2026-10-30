@@ -20,7 +20,11 @@ TravelTide/
 │   ├── users_features.csv             # user table + behavioral features, written by notebook 02
 │   ├── users_segments.csv             # all features + segment, perks, K-Means and DBSCAN cluster, written by notebook 03
 │   ├── user_perks.csv                 # final deliverable: one perk per customer (user_id, segment, perk, perk_source, pilot_perk)
-│   └── habit_or_luck.csv              # habit-or-luck test: each segment rule vs. 50 random shuffles, written by notebook 03 (used in Tableau)
+│   ├── habit_or_luck.csv              # habit-or-luck test: each segment rule vs. 50 random shuffles, written by notebook 03 (used in Tableau)
+│   ├── chance_models.csv              # Tableau helper: Dreamers vs. a chance model (notebook 03, section 3)
+│   ├── persona_facts.csv              # Tableau helper: 4 facts per persona (notebook 03, section 8)
+│   ├── perk_plan.csv                  # Tableau helper: launch / test plan per perk, with who, why and test design
+│   └── perk_kpis.csv                  # Tableau helper: KPI to watch + today's baselines per perk
 ├── notebooks/
 │   ├── 01_EDA_Cleaning.ipynb          # data cleaning & exploratory data analysis
 │   ├── 02_User_Features.ipynb         # user-level features and their distributions
@@ -50,6 +54,7 @@ TravelTide/
      - If a file is missing, the notebook reads it from the project's Google Drive backup instead (shared as "anyone with the link"), so it also runs in Google Colab.
    - Notebook 01 installs its extra packages (e.g. `airports-py`) automatically if they are missing.
    - Notebook 03 writes the three final files: `users_segments.csv`, `user_perks.csv` and `habit_or_luck.csv`.
+   - The four small Tableau helper tables (`chance_models.csv`, `persona_facts.csv`, `perk_plan.csv`, `perk_kpis.csv`) hold summary numbers and short texts taken from notebook 03 results for the Tableau story; they are not written by a notebook.
 3. *Optional – database connection:* copy `.env.example` to `.env` and insert the course database URL (in Colab: a secret named `TRAVELTIDE_URL`). Notebook 01 then builds its two input tables from the database (section 1.1; set `BUILD_FROM_DATABASE = False` to use the CSVs instead). For the extra live check in section 1.2 (e.g. the gender split before the cohort filter), set `RUN_LIVE_QUERIES = True`. The `.env` file is listed in `.gitignore`, so the URL is never committed.
 
 > **Opening the CSVs in Excel with German settings:** Excel reads decimals like `1.5` as dates (1 May). Use *Daten → Text in Spalten → Weitere…* and set the decimal separator to `.` – the files themselves are correct. In Tableau, set *Text File Properties → Locale* to **English (United States)** for the same reason.

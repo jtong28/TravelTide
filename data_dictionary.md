@@ -4,12 +4,14 @@ All tables cover Elena's cohort: sessions from **2023-01-04** onward, users with
 
 | File | Grain | Rows | Created by |
 |---|---|---:|---|
-| `data/session_level_table.csv` | one row per browsing session | 49,211 | SQL `session_base` (`sql/JT_session_and_user_base.sql`) |
+| `data/session_level_table.csv` | one row per browsing session | 49,211 | SQL `session_base` (`sql/session_and_user_base.sql`) |
 | `data/sessions_clean.csv` | one row per browsing session | 49,211 | notebook 01 (cleaned + derived columns) |
-| `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`sql/JT_session_and_user_base.sql`) |
+| `data/user_level_table.csv` | one row per user | 5,998 | SQL `user_base` (`sql/session_and_user_base.sql`) |
 | `data/users_features.csv` | one row per user | 5,998 | notebook 02 (user table formatted + extra features) |
-| `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means cluster) |
+| `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means and DBSCAN cluster) |
 | `data/user_perks.csv` | one row per user | 5,998 | notebook 03 – **final deliverable**: `user_id`, `segment`, `perk`, `perk_source`, `pilot_perk` |
+| `data/habit_or_luck.csv` | one row per tested rule | 10 | notebook 03, section 3 – habit-or-luck test, used for the Tableau story |
+| `data/chance_models.csv`, `persona_facts.csv`, `perk_plan.csv`, `perk_kpis.csv` | small Tableau helper tables | 4 / 36 / 6 / 18 | summary numbers and texts from notebook 03 results (section 7 below) |
 
 **Missing values are structural, not errors:** flight columns are empty when no flight was booked, hotel columns when no hotel was booked, trip columns for browsing-only sessions (see notebook 01, section 3.4). They are never filled with 0.
 
@@ -153,3 +155,55 @@ All columns of `users_features.csv`, plus:
 | `pilot_perk` | text | New perk to A/B test for the segment (e.g. 48-h Fare Lock for Dreamers) | empty for All-rounders |
 | `kmeans_cluster` | int | K-Means cluster (k = 8) on 9 standardized behavioral features | bookers only – empty for Dreamers; used to check the rules, not to assign perks |
 | `dbscan_cluster` | int | DBSCAN cluster (ε = 1.5, MinPts = 18) on the same 9 features; −1 = noise (outlier) | bookers only – empty for Dreamers; used as a second check, not to assign perks |
+
+## 6. Habit or luck (`habit_or_luck.csv`)
+One row per tested rule (10 rows). Each rule from the segment definitions is counted in the real data and in 50 versions where the valid trips were dealt out to the users again at random (every user keeps their number of trips). A rule is a **habit** when the real count is above what 95 % of the shuffles give.
+
+| Column | Type | Description | Notes |
+|---|---|---|---|
+| `rule` | text | The rule that was tested, e.g. `Hotel Stayers: hotel-only ≥ 50 %` | rows starting with spaces (`   core: …`) are a stricter part of the rule above |
+| `real` | int | Users who meet the rule in the real data | |
+| `luck_avg` | float | Average count over the 50 shuffles | what luck alone gives |
+| `luck_low`, `luck_high` | float | 5th and 95th percentile of the 50 shuffles | the luck range (middle 90 %) |
+| `ratio` | float | `real` ÷ average luck count | 1.0 = exactly what luck gives; 1.26 = 26 % more users than luck |
+| `verdict` | text | `luck` / `habit` / `strong habit` | `luck` if `real` ≤ `luck_high`; `strong habit` if also `ratio` ≥ 1.2; otherwise `habit` |
+
+## 7. Tableau helper tables
+Small tables for the Tableau story. They hold summary numbers and short texts taken from notebook 03 results and are not written by a notebook. In Tableau each one is its own data source (Text File Properties: UTF-8, locale English (United States)).
+
+### `chance_models.csv` (story point 3, 4 rows)
+| Column | Type | Description | Notes |
+|---|---|---|---|
+| `question` | text | `Customers who never book` or `Customers who book in at least half of their sessions` | notebook 03, section 3 |
+| `kind` | text | `Real` or `By chance` | chance model: binomial, same booking rate for everyone |
+| `customers` | int | Number of customers | never book: 458 real vs. 236 by chance · book in ≥ half: 1,598 vs. 1,382 |
+| `sort` | int | 1 = Real, 2 = By chance | bar order in Tableau |
+
+### `persona_facts.csv` (story point 4, 36 rows = 9 personas × 4 facts)
+| Column | Type | Description | Notes |
+|---|---|---|---|
+| `segment` | text | Segment of the persona | matches `segment` in `users_segments.csv` |
+| `tile_row`, `tile_col` | int | Position of the fact tile in the 2 × 2 grid | 1 or 2 |
+| `fact` | text | Label, e.g. `Hotel-only` | the facts that best show the segment's habit |
+| `value` | text | Formatted value, e.g. `50 %` | from the persona's row in `users_segments.csv` (notebook 03, section 8) |
+
+### `perk_plan.csv` (story point 5, 6 rows = one per perk)
+| Column | Type | Description | Notes |
+|---|---|---|---|
+| `perk` | text | Perk name | `Extra-legroom seat (new)` = the new perk |
+| `perk_group` | text | `Launch now` (backed by a habit) or `Test first` (A/B test) | launch: 4,769 customers · test: 1,229 |
+| `sort` | int | Order in the lists | |
+| `customers` | int | Customers who get this perk | same counts as `user_perks.csv` |
+| `short` | text | One-line reason shown under the perk | |
+| `kicker` | text | Small heading of the detail card | |
+| `who` | text | Segments that get the perk, with customer counts | |
+| `why` | text | The evidence behind the decision | habit-or-luck test and notebook 03, sections 3–4 |
+| `design` | text | Test design: 20 % control group (launch) or 50 / 50 split (test first) | group sizes and length are proposals |
+
+### `perk_kpis.csv` (story point 5, 18 rows = 6 perks × 3 tiles)
+| Column | Type | Description | Notes |
+|---|---|---|---|
+| `perk` | text | Perk name | matches `perk_plan.csv` |
+| `tile` | int | 1 = KPI to watch, 2 and 3 = today's baselines | |
+| `label` | text | Tile label, e.g. `Today · Trips per Hotel Stayer` | |
+| `value` | text | Formatted value, e.g. `2.0` | baselines from `users_segments.csv` and `sessions_clean.csv` |
