@@ -19,3 +19,6 @@ Thumbs.db
 
 # Local scratch / old versions
 backup/
+
+# Tableau temp / autosave files
+*.twbr
