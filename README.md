@@ -14,6 +14,8 @@ Using a relational database spanning customer profiles, session logs, flight boo
 ```
 TravelTide/
 ├── data/                              # SQL exports (CSV) + files written by the notebooks
+│   ├── flights.csv                    # flights of the cohort, exported with sql/filtered_tables.sql (early exploration, not read by the notebooks)
+│   ├── hotels.csv                     # hotel stays of the cohort, exported with sql/filtered_tables.sql (early exploration, not read by the notebooks)
 │   ├── session_level_table.csv        # one row per session (SQL session_base)
 │   ├── user_level_table.csv           # one row per user (SQL user_base)
 │   ├── sessions_clean.csv             # cleaned session table, written by notebook 01
@@ -30,7 +32,9 @@ TravelTide/
 │   ├── 02_User_Features.ipynb         # user-level features and their distributions
 │   └── 03_Segments_Models.ipynb       # rule-based segments, habit-or-luck test, perks, K-Means, DBSCAN, PCA, personas
 ├── sql/
-│   └── session_and_user_base.sql      # cohort filter, session- and user-level tables
+│   ├── schema_exploration.sql         # first look at the database: tables, columns and data types (basis for the ERD)
+│   ├── filtered_tables.sql            # the four main tables (users, sessions, flights, hotels) filtered to the cohort (sessions from Jan 4, 2023, users with more than 7 sessions) – source of data/flights.csv and data/hotels.csv
+│   └── session_and_user_base.sql      # cohort filter, session- and user-level tables (used by notebook 01)
 ├── images/
 │   └── TravelTide_ERD.png             # database schema
 ├── TravelTide Rewards_JT.twbx         # Tableau workbook (story for the presentation, also on Tableau Public)

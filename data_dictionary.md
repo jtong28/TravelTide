@@ -11,6 +11,7 @@ All tables cover Elena's cohort: sessions from **2023-01-04** onward, users with
 | `data/users_segments.csv` | one row per user | 5,998 | notebook 03 (features + segment, perk, K-Means and DBSCAN cluster) |
 | `data/user_perks.csv` | one row per user | 5,998 | notebook 03 – **final deliverable**: `user_id`, `segment`, `perk`, `perk_source`, `pilot_perk` |
 | `data/habit_or_luck.csv` | one row per tested rule | 10 | notebook 03, section 3 – habit-or-luck test, used for the Tableau story |
+| `data/flights.csv`, `data/hotels.csv` | one row per flight / hotel booking of the cohort | – | `sql/filtered_tables.sql` (the four main tables filtered to the cohort) – early exploration, not read by the notebooks; columns as in the database, see the ERD in `images/` |
 | `data/chance_models.csv`, `persona_facts.csv`, `perk_plan.csv`, `perk_kpis.csv` | small Tableau helper tables | 4 / 36 / 6 / 18 | summary numbers and texts from notebook 03 results (section 7 below) |
 
 **Missing values are structural, not errors:** flight columns are empty when no flight was booked, hotel columns when no hotel was booked, trip columns for browsing-only sessions (see notebook 01, section 3.4). They are never filled with 0.
