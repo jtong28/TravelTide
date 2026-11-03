@@ -7,8 +7,9 @@ plotly
 nbformat        # needed by plotly to show maps inside notebooks
 airports-py     # full airport names
 
-# Segmentation models (notebook 03: K-Means, DBSCAN, silhouette score)
+# Segmentation models and chance model (notebook 03: K-Means, DBSCAN, PCA, silhouette score; binomial test)
 scikit-learn
+scipy
 
 # Optional – live database check in notebook 01 (section 1.2, installed automatically when used)
 sqlalchemy
