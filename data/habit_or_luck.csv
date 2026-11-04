@@ -1,11 +1,11 @@
 rule,real,luck_avg,luck_low,luck_high,ratio,verdict
-Hotel Stayers: hotel-only ≥ 50 %,951,752.5,730.45,777.55,1.26,strong habit
-Family / Couples: party size ≥ 1.5,1088,1040.7,1010.15,1063.65,1.05,habit
-   core: party size ≥ 2,413,369.8,344.0,391.1,1.12,habit
-Favorite-City: same city ≥ 2 times,805,755.5,717.25,793.3,1.07,habit
-   core: same city ≥ 3 times,67,52.8,39.35,62.55,1.26,strong habit
-"Long-haul Travelers: ≥ 3,000 km",846,767.0,746.0,797.0,1.1,habit
-   checked bags: ≥ 1 bag,1469,1454.7,1428.45,1484.3,1.01,luck
-"Package Travelers: all trips flight + hotel, ≥ 3",1206,1040.6,1016.9,1067.2,1.16,habit
-Deal Hunters: discounted ≥ 50 % & ≥ 2 trips,1044,1029.3,1006.0,1053.55,1.01,luck
-Weekend Escapers (planned): Fri/Sat starts ≥ 50 %,1682,1678.9,1642.35,1713.65,1.0,luck
+Hotel Stayers: hotel-only ≥ 50 %,951,755.7,732.35,776.0,1.26,strong habit
+Family / Couples: party size ≥ 1.5,1088,1038.0,1008.85,1068.4,1.05,habit
+   core: party size ≥ 2,413,364.5,343.7,383.2,1.13,habit
+Favorite-City: same city ≥ 2 times,805,761.0,722.5,789.3,1.06,habit
+   core: same city ≥ 3 times,67,52.5,42.45,64.0,1.26,strong habit
+"Long-haul Travelers: ≥ 3,000 km",846,774.2,741.6,800.75,1.09,habit
+   checked bags: ≥ 1 bag,1469,1454.8,1424.4,1491.55,1.01,luck
+"Package Travelers: all trips flight + hotel, ≥ 3",1206,1031.4,1004.0,1054.1,1.17,habit
+Deal Hunters: discounted ≥ 50 % & ≥ 2 trips,1044,1031.2,1003.35,1063.95,1.01,luck
+Weekend Escapers (planned): Fri/Sat starts ≥ 50 %,1682,1684.1,1656.9,1708.3,1.0,luck
