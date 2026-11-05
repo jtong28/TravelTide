@@ -10,6 +10,7 @@ MSIT Mastery Project: customer segmentation of TravelTide booking data to design
 
 ## 🔗 Quick Access
 
+- 🎤 **Presentation slides:** [`TravelTide_Rewards_Presentation.pdf`](TravelTide_Rewards_Presentation.pdf) – 7 slides + 4 backup slides, presented together with the live Tableau story
 - 📊 **Tableau Public story:** [View the interactive story](https://public.tableau.com/views/TravelTideRewards_JT/TravelTide?:language=en-US&:display_count=n&:origin=viz_share_link) – 5 points: customers & trips · nine groups · habit or luck · perks & personas · recommendation
 - 💾 **Tableau workbook (offline copy):** [`TravelTide Rewards_JT.twbx`](TravelTide%20Rewards_JT.twbx) – the same story, opens in Tableau Desktop or the free Tableau Public app without internet
 - 📋 **Executive Summary (1 page):** [`TravelTide_Rewards_Executive_Summary.pdf`](TravelTide_Rewards_Executive_Summary.pdf)
@@ -56,7 +57,7 @@ Using a relational database spanning customer profiles, session logs, flight boo
 4. **Measure** against a control group (rewards sign-ups, booking rate 33.1 %, trips per customer 2.6, cancellation rate 3.8 %) and **re-run the segmentation every quarter.**
 
 ### Links to files
-All files are listed under [Quick Access](#-quick-access) at the top: executive summary, detailed report, Tableau story (online and offline), notebooks, the final perk list, SQL, data dictionary and ERD.
+All files are listed under [Quick Access](#-quick-access) at the top: presentation slides, executive summary, detailed report, Tableau story (online and offline), notebooks, the final perk list, SQL, data dictionary and ERD.
 
 ---
 
@@ -148,6 +149,7 @@ TravelTide/
 │   └── session_and_user_base.sql      # cohort filter, session- and user-level tables (used by notebook 01)
 ├── images/
 │   └── TravelTide_ERD.png             # database schema
+├── TravelTide_Rewards_Presentation.pdf        # presentation slides: 7 slides + 4 backup slides
 ├── TravelTide_Rewards_Executive_Summary.pdf   # one-page executive summary
 ├── TravelTide_Rewards_Detailed_Report.pdf     # detailed report (3 pages)
 ├── TravelTide Rewards_JT.twbx         # Tableau workbook: offline copy of the story (also on Tableau Public)
